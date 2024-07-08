@@ -1,0 +1,39 @@
+At line 1158 of file systm.f90 (unit = 100)
+Fortran runtime error: Cannot open file 'data/LOG_70406_nl8_wc7.415_n2_14_E0.10E-06_p2th0.9E+00_dtadd1.40_ar0.5_wq4.462_g-0.159_gam0.005955_nm200_mr0.25_p0.5E-05_bw0.300_bc7.419_wd7.419_ad0.011_OFT1.50_3.10_anh-0.214_dt0.0050_errl0.1E-02_qb1_cv0.0_tmax2_RK45_TRSM1.d': No such file or directory
+
+Error termination. Backtrace:
+#0  0x1091b38ee
+#1  0x1091b45d5
+#2  0x1091b518b
+#3  0x1093f3728
+#4  0x1093f3a0d
+#5  0x108d1ab0b
+#6  0x108d5dfdd
+#7  0x108d5e3e0
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+sh: ./jobfile: No such file or directory
+nohup: ./jobfile_1: Permission denied
+nohup: ./jobfile_2: Permission denied
+nohup: ./jobfile_3: Permission denied
+nohup: ./jobfile_4: Permission denied
+nohup: ./jobfile_5: Permission denied
+nohup: ./jobfile_6: Permission denied
+nohup: ./jobfile_7: Permission denied
+nohup: ./jobfile_8: Permission denied
+./jobfile_9: line 1: 73075 Terminated: 15          ./mpol -nl 8 -ncs_ini 2 -ncs_max 14 -dvice TRSM1 -g_qc -0.1586 -wc 7.415 -wd 7.419351 -bc 7.419351 -p0 0.000005 -ad 0.011 -bw 0.3 -dt 0.005 -dt_add 3.0 -gama 0.005955 -mr 0.25 -nbm 200 -tmax 5 -errlim 0.001 -error_thr 0.0000001 -offset_abs 1.5 -offset_ang 3.1 -p2_threshold 0.9 -logfile 1 -print_delay 0.1 -error_calc_delay 0.1 -calc_error 0 -method RK45 -adding_ratio 0.5 -job_id $$
+./jobfile_12: line 1: 73093 Terminated: 15          ./mpol -nl 8 -ncs_ini 2 -ncs_max 14 -dvice TRSM1 -g_qc -0.1586 -wc 7.415 -wd 7.419351 -bc 7.419351 -p0 0.000005 -ad 0.011 -bw 0.3 -dt 0.005 -dt_add 3.6 -gama 0.005955 -mr 0.25 -nbm 200 -tmax 5 -errlim 0.001 -error_thr 0.0000001 -offset_abs 1.5 -offset_ang 3.1 -p2_threshold 0.9 -logfile 1 -print_delay 0.1 -error_calc_delay 0.1 -calc_error 0 -method RK45 -adding_ratio 0.5 -job_id $$
+./jobfile_7: line 1: 73063 Terminated: 15          ./mpol -nl 8 -ncs_ini 2 -ncs_max 14 -dvice TRSM1 -g_qc -0.1586 -wc 7.415 -wd 7.419351 -bc 7.419351 -p0 0.000005 -ad 0.011 -bw 0.3 -dt 0.005 -dt_add 2.6 -gama 0.005955 -mr 0.25 -nbm 200 -tmax 5 -errlim 0.001 -error_thr 0.0000001 -offset_abs 1.5 -offset_ang 3.1 -p2_threshold 0.9 -logfile 1 -print_delay 0.1 -error_calc_delay 0.1 -calc_error 0 -method RK45 -adding_ratio 0.5 -job_id $$

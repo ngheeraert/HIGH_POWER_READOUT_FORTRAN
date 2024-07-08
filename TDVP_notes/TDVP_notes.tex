@@ -1,0 +1,217 @@
+\documentclass[prb]{revtex4}
+%\documentclass[a4paper,10pt]{article}
+
+
+%%%%%%%Specific packages%%%%%%%%%%%%%
+\usepackage[usenames,dvipsnames]{color}
+
+\usepackage{pdfpages}
+\usepackage[british]{babel} 
+%\usepackage[svgnames,x11names]{xcolor}
+%\usepackage{graphics}
+\usepackage{mathtools}
+\usepackage{braket}
+
+\usepackage[b]{esvect} % Vector notation 
+\usepackage{empheq}    % boxed equation 
+
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{textcomp}   % text companion fonts
+%\usepackage{dcolumn}
+\usepackage{bm}         % bold math
+\usepackage{microtype}  % makes pdf looks better
+%\usepackage{lmodern}
+%\fontfamily{garamond}
+%\fontfamily{\familydefault}
+%\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+%\usepackage[sf]{titlesec}
+
+%\usepackage{mathrsfs}
+%\usepackage{bbold}
+%\usepackage{epsfig}
+%\usepackage{booktabs}    % table format 
+%\usepackage{wasysym}
+%\usepackage{pmat}       % also matrix partition 
+%\usepackage{fancybox} 
+%\usepackage{subfig}      % figure side by side
+%\usepackage{sidecap}     % side caption
+%\usepackage{setspace}    % for line spacing 
+%\usepackage{ctable}      % better table spacing
+%\usepackage[OT1]{fontenc} % font 
+%\usepackage{helvet}      % Helvetica
+\usepackage{mathptmx}    % Times 
+%\usepackage[sc,osf]{mathpazo}
+%\usepackage[version=3]{mhchem} % chemical formulas 
+%\usepackage{showkeys}    % switch it off when not needed.
+%\usepackage{flafter}    % place figures/tables after references in text 
+%\usepackage[left=1.5in, right=1in, top=1in, bottom=1in, includefoot,
+ %                    headheight=13.6pt]{geometry}   % changing the page layout  
+%\usepackage[latin1]{inputenc}
+%\usepackage{euler}       % Font for math mode 
+%\setlength{\abovecaptionskip}{5pt}
+\usepackage[breaklinks]{hyperref} %%% Hyper-linking
+\hypersetup{colorlinks=false}
+
+%%% paragraph setting
+\setlength{\parskip}{2.0ex plus 0.2ex minus 0.2ex}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{2.0}
+
+
+%%% hack boxed 
+\newcommand*{\boxedcolor}{Lavender}
+
+\definecolor{mycol}{RGB}{255, 229, 255}
+\newcommand*\mybox[1]{\colorbox{mycol}{\hspace{1em}#1\hspace{1em}}}
+
+\makeatletter
+\renewcommand{\boxed}[1]{\textcolor{\boxedcolor}{%
+\fbox{\normalcolor\m@th$\displaystyle#1$}}}
+\makeatother
+
+%%% Few specific commands  %%%
+\newcommand{\eq}[1]{\begin{align}#1\end{align}}
+
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+
+\newcommand{\bit}{\begin{itemize}}
+\newcommand{\eit}{\end{itemize}}
+
+\newcommand{\br}{{\bf r}}
+\newcommand{\Le}{\left}
+\newcommand{\Ri}{\right}
+\newcommand{\nn}{\nonumber}
+\newcommand{\R}{\rho}
+\newcommand{\f}{\frac}
+\newcommand{\bs}{\boldsymbol}
+\newcommand{\B} {\bf}
+\newcommand{\mbf}{\mathbf}
+\newcommand{\mrm}{\mathrm}
+\newcommand{\tr}{\textrm}
+\newcommand{\tbl}{\textcolor{blue}}
+\newcommand{\trd}{\textcolor{red}}
+\newcommand{\mc}{\mathcal}
+\newcommand{\mf}{\mathfrak}
+\newcommand{\dg}{\dagger}
+\newcommand{\om}{\omega}
+\newcommand{\ra}{\rangle}
+\newcommand{\la}{\langle}
+\newcommand{\ua}{\uparrow}
+\newcommand{\da}{\downarrow}
+
+\newcommand{\ii}{i}
+\newcommand*\conj[1]{{#1^\star}}
+\newcommand*\conjk[1]{{#1^{k\star}}}
+\newcommand*\conjp[1]{{#1^{p\star}}}
+\newcommand*\dotconjp[1]{{\dot{#1}^{p\star}}}
+\newcommand*\dotp[1]{{\dot{#1}^{p}}}
+\newcommand*\p[1]{{\dot{#1}^{p}}}
+\newcommand*\kp{\boldsymbol{\kappa}}
+\newcommand{\wk}{\omega_k}
+
+\newcommand{\ff}[2]{\la f_{#1} | f_{#2} \ra}
+\newcommand{\fg}[2]{\la f_{#1} | h_{#2} \ra}
+\newcommand{\gf}[2]{\la h_{#1} | f_{#2} \ra}
+\newcommand{\ggnm}[2]{\la h_{#1} | h_{#2} \ra}
+
+%\newcommand{\fm}{f_m}
+%\newcommand{\pj}{p_j}
+%\newcommand{\pm}{p_m}
+
+% begin document
+\begin{document}
+\title{Dynamical equations of a qubit coupled to a cavity decaying into a bosonic bath -- via SPIN-BOSON}
+\author{Nicolas Gheeraert}
+\date{\today}
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+\section{General algorithm}
+
+
+%
+We start with the following wavefunction
+\eq{
+|\Psi\ra = \sum_{i}^{N_q-1} \sum_{n}^{\rm ncs} p_{i,n} \ket{i} \ket{z_{i,n}}
+}
+Here $p_{i,n}$ and $z_{i,n}^p$ are all complex and time dependent variational parameters. 
+
+The Lagrangian is given by:
+
+\eq{
+\mc{L}  = \braket{ \Psi | \frac{i}{2}  \overleftrightarrow{\partial_t} - \hat H | \Psi  }
+}
+
+Explicitely:
+
+\eq{
+\braket{\Psi|  \vv*{\partial}{t} | \Psi } 
+&=  \left(\sum_{m} p_m^\star  \bra{z_m} \right) \vv*{\partial}{t} \left(\sum_{n} p_n \ket{z_n} \right)  \notag \\
+&= \sum_{mn} p_m^\star  \braket{z_m|z_n} \biggl( \dot{p}_n -\frac{1}{2}p_n \Bigl( \sum_p \dot{z}_n^p z_n^{p\star} + z_n^p \dot{z}_n^{p\star} - 2 z_m^{p\star} \dot{z}_n^p \Bigr)  \biggr)
+}
+where we have used: 
+\eq{
+\la z_n | \vv*{\partial}{t} | z_m \ra &= -\f{1}{2} \Le( \sum_p  \dot{z}_m^p z_m^{p\star} +
+z_m^p \dot{z}_m^{p\star} -2 z_n^{p\star}\dot{z}_m^p \Ri) \la z_n | z_m \ra \nn 
+}
+Since we have that:
+\eq{
+\braket{\Psi|   \overleftarrow{\partial_t} | \Psi }  =  \braket{\Psi| \overrightarrow{\partial_t} | \Psi } ^\star,
+}
+we obtain:
+\eq{
+\mc{L}  &= \frac{i}{2}\sum_{mn}  \braket{z_m|z_n} \biggl[ p_m^\star \dot{p}_n - p_n \dot{p}_m^\star - \frac{1}{2}p_m^\star p_n \Bigl( \sum_p \dot{z}_n^p z_n^{p\star} + z_n^p \dot{z}_n^{p\star} - 2 z_m^{p\star} \dot{z}_n^p - \dot{z}_m^{p\star} z_m ^p- z_m^{p\star} \dot{z}_m^p + 2 z_n^p \dot{z}_m^{p\star} \Bigr)  \biggr] -  \braket{ \Psi |  \hat H | \Psi  }
+}
+
+The Euler-Lagrange equations are: 
+\eq{
+\f{d}{d t} \f{\partial \mc{L}}{\partial \conj{\dot{p}_j}} - \f{\partial
+\mc{L}}{\partial \conj{p_j}} =0  \quad \text{and} \qquad
+\f{d}{d t} \f{\partial
+\mc{L}}{\partial \conjp{\dot{z}_j}} - \f{\partial
+\mc{L}}{\partial \conjp{z_j}} =0.
+}
+
+After $\conj{p_j}$ variation we get
+\begin{empheq}[box=\fbox]{equation}
+ \sum_m \Le( \dot{p}_m - \frac{1}{2}p_m \kp_{mj} \Ri) M_{jm} = -\ii \f{\partial E}{\partial \conj{p_j}}  \equiv P_j
+\label{equation1}
+\end{empheq}
+
+After $\conjp{z_j}$ variation we get
+\eq{
+  \sum_m p_m \conj{p_j} \dot{z}_m^p  M_{jm}
+-\f{1}{4} \sum_m \Le(2 \dot{p}_m - p_m \kp_{mj}  \Ri) \conj{p_j} (z_j^p-2z_m^p)
+M_{jm} 
++\f{1}{4} \sum_m \Le(2 \conj{\dot{p}_m} - \conj{p_m}\conj{\kp_{mj}} \Ri) p_j
+z_j^p M_{mj} = -i \f{\partial E}{\partial \conjp{z_j}}
+\label{rawequation2_B}
+}
+where we have defined:
+\eq{
+&M_{jm} = \braket{z_j|z_m} \\
+&\kappa_{mj} =  \sum_p \dot{z}_m^p z_m^{p\star} + \dot{z}_m^{p\star} z_m^p - 2 z_j^{p\star} \dot{z}_m^p
+}
+Using (\ref{equation1}) to simplify (\ref{rawequation2_B}), we get:
+\begin{empheq}[box=\fbox]{equation}
+\sum_m p_m  \dot{z}_m^p M_{jm}  + \sum_m ( \dot{p}_m
+- \f{1}{2} p_m \kp_{mj})  z_m^p M_{jm}  =  Z_j^p,
+\label{equation2_Z}
+\end{empheq}
+where we have defined:
+\eq{
+Z_j^p = -\ii \Le[\f{\partial E}{\partial \conjp{z_j}}\frac{1}{p_j^\star}  + \f{1}{2} \Le( \f{\partial E}{\partial p_j^\star}
+ + \f{\partial E}{\partial p_j } \frac{p_j}{p_j^\star}  \Ri) z_j^p \Ri] 
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{unsrt}
+%\bibliographystyle{abbrv}
+%\bibliography{BibFiles/biblio}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}

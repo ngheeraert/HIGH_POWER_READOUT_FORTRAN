@@ -1,0 +1,390 @@
+\documentclass[prb]{revtex4}
+%\documentclass[a4paper,10pt]{article}
+
+
+%%%%%%%Specific packages%%%%%%%%%%%%%
+\usepackage[usenames,dvipsnames]{color}
+
+\usepackage{pdfpages}
+\usepackage[british]{babel} 
+%\usepackage[svgnames,x11names]{xcolor}
+%\usepackage{graphics}
+\usepackage{mathtools}
+\usepackage{braket}
+
+\usepackage[b]{esvect} % Vector notation 
+\usepackage{empheq}    % boxed equation 
+
+\usepackage{amssymb}
+\usepackage{amsfonts}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{textcomp}   % text companion fonts
+%\usepackage{dcolumn}
+\usepackage{bm}         % bold math
+\usepackage{microtype}  % makes pdf looks better
+%\usepackage{lmodern}
+%\fontfamily{garamond}
+%\fontfamily{\familydefault}
+%\renewcommand*\familydefault{\sfdefault} %% Only if the base font of the document is to be sans serif
+%\usepackage[sf]{titlesec}
+
+%\usepackage{mathrsfs}
+%\usepackage{bbold}
+%\usepackage{epsfig}
+%\usepackage{booktabs}    % table format 
+%\usepackage{wasysym}
+%\usepackage{pmat}       % also matrix partition 
+%\usepackage{fancybox} 
+%\usepackage{subfig}      % figure side by side
+%\usepackage{sidecap}     % side caption
+%\usepackage{setspace}    % for line spacing 
+%\usepackage{ctable}      % better table spacing
+%\usepackage[OT1]{fontenc} % font 
+%\usepackage{helvet}      % Helvetica
+\usepackage{mathptmx}    % Times 
+%\usepackage[sc,osf]{mathpazo}
+%\usepackage[version=3]{mhchem} % chemical formulas 
+%\usepackage{showkeys}    % switch it off when not needed.
+%\usepackage{flafter}    % place figures/tables after references in text 
+%\usepackage[left=1.5in, right=1in, top=1in, bottom=1in, includefoot,
+ %                    headheight=13.6pt]{geometry}   % changing the page layout  
+%\usepackage[latin1]{inputenc}
+%\usepackage{euler}       % Font for math mode 
+%\setlength{\abovecaptionskip}{5pt}
+\usepackage[breaklinks]{hyperref} %%% Hyper-linking
+\hypersetup{colorlinks=false}
+
+%%% paragraph setting
+\setlength{\parskip}{2.0ex plus 0.2ex minus 0.2ex}
+\setlength{\parindent}{0pt}
+\renewcommand{\arraystretch}{2.0}
+
+
+%%% hack boxed 
+\newcommand*{\boxedcolor}{Lavender}
+
+\definecolor{mycol}{RGB}{255, 229, 255}
+\newcommand*\mybox[1]{\colorbox{mycol}{\hspace{1em}#1\hspace{1em}}}
+
+\makeatletter
+\renewcommand{\boxed}[1]{\textcolor{\boxedcolor}{%
+\fbox{\normalcolor\m@th$\displaystyle#1$}}}
+\makeatother
+
+%%% Few specific commands  %%%
+\newcommand{\eq}[1]{\begin{align}#1\end{align}}
+
+\newcommand{\ba}{\begin{array}}
+\newcommand{\ea}{\end{array}}
+
+\newcommand{\bit}{\begin{itemize}}
+\newcommand{\eit}{\end{itemize}}
+
+\newcommand{\br}{{\bf r}}
+\newcommand{\Le}{\left}
+\newcommand{\Ri}{\right}
+\newcommand{\nn}{\nonumber}
+\newcommand{\R}{\rho}
+\newcommand{\f}{\frac}
+\newcommand{\bs}{\boldsymbol}
+\newcommand{\B} {\bf}
+\newcommand{\mbf}{\mathbf}
+\newcommand{\mrm}{\mathrm}
+\newcommand{\tr}{\textrm}
+\newcommand{\tbl}{\textcolor{blue}}
+\newcommand{\trd}{\textcolor{red}}
+\newcommand{\mc}{\mathcal}
+\newcommand{\mf}{\mathfrak}
+\newcommand{\dg}{\dagger}
+\newcommand{\om}{\omega}
+\newcommand{\ra}{\rangle}
+\newcommand{\la}{\langle}
+\newcommand{\ua}{\uparrow}
+\newcommand{\da}{\downarrow}
+
+\newcommand{\ii}{i}
+\newcommand*\conj[1]{{#1^\star}}
+\newcommand*\conjk[1]{{#1^{k\star}}}
+\newcommand*\conjp[1]{{#1^{p\star}}}
+\newcommand*\dotconjp[1]{{\dot{#1}^{p\star}}}
+\newcommand*\dotp[1]{{\dot{#1}^{p}}}
+\newcommand*\p[1]{{\dot{#1}^{p}}}
+\newcommand*\kp{\boldsymbol{\kappa}}
+\newcommand{\wk}{\omega_k}
+
+\newcommand{\ff}[2]{\la f_{#1} | f_{#2} \ra}
+\newcommand{\fg}[2]{\la f_{#1} | h_{#2} \ra}
+\newcommand{\gf}[2]{\la h_{#1} | f_{#2} \ra}
+\newcommand{\ggnm}[2]{\la h_{#1} | h_{#2} \ra}
+
+%\newcommand{\fm}{f_m}
+%\newcommand{\pj}{p_j}
+%\newcommand{\pm}{p_m}
+
+% begin document
+\begin{document}
+\title{Dynamical equations of a qubit coupled to a cavity decaying into a bosonic bath -- via SPIN-BOSON}
+\author{Nicolas Gheeraert}
+\date{\today}
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+The Hamiltonian is given by :
+%
+\eq{
+\hat H &= 4 E_c n^2 -E_J \cos(\varphi) + \omega_c a^\dag a  + ig n_0 ( a^\dag- a ) + \sum_{k=0}^{N} \omega_k a_k^\dag a_k + i^2 \sum_{k=0}^{N} g_k ( a^\dag - a   ) (a_k^\dag - a_k) + A(t) (a^\dag- a) \notag \\
+\hat H &= \hat H_0  -E_J \cos(\varphi)  -\frac{E_J}{2} \varphi^2 + A(t) (a^\dag- a) 
+}
+To maintain a concise notation we define the operators $a_\mu$, with $\mu$ indexing all degrees of freedom of the system (qubit $[\mu=0]$, cavity $[\mu=1]$, $N$ modes $[\mu=2..N+2]$):
+\eq{
+a_0 &= \frac{1}{\sqrt{2}}\bigg( \left(\frac{E_J}{8 E_C}\right)^{1/4} \varphi_0 + i \left(\frac{8 E_C}{E_J}\right)^{1/4}  n_0 \bigg) \notag \\
+a_\mu &= \frac{1}{\sqrt{2}}\bigg( \sqrt{\omega_\mu} \varphi_\mu + i \frac{1}{\sqrt{\omega_\mu} } n_\mu \bigg)\quad \text{for} \quad [\mu \ne 0].
+}
+Equivalently,
+\eq{
+\varphi_0 &= \frac{1}{\sqrt{2}}\left( \frac{8E_C}{E_J} \right)^{1/4} ( a_0^\dag + a_0 ) &\varphi_\mu &= \frac{1}{\sqrt{2\omega_\mu}} ( a_\mu^\dag + a_\mu )\notag \\
+ n_0 &= \frac{i}{\sqrt{2}}\left( \frac{E_J}{8E_C} \right)^{1/4}  ( a_0^\dag - a_0 ) & n_\mu &= i\frac{\sqrt{\omega_\mu}}{\sqrt{2}} ( a_\mu^\dag - a_\mu ) 
+}
+
+\section{ Diagonalisation of the free bosonic modes }
+
+The linearised Hamiltonian $H_0$ is given by:
+\eq{
+H_0 &= 4 E_c n_0^2 +\frac{E_J}{2} \varphi_0^2 + \omega_1 a_1^\dag a_1  + ig n_0 ( a_1^\dag- a_1 ) + \sum_{\mu=2}^{N+2} \omega_\mu a_\mu^\dag a_\mu + i^2 \sum_{\mu=2}^{N+2} g_\mu ( a_1^\dag - a_1   ) (a_\mu^\dag - a_\mu)  + A(t) (a_1^\dag- a_1) 
+}
+It can be put in a simple form by successively rescaling the phase and charge number operators, i.e. 
+\eq{
+& \varphi_\mu \rightarrow \bar \varphi_\mu/\eta_\mu  & n_\mu \rightarrow \eta_\mu \bar n_{\mu},
+} 
+with $\eta_0 = \sqrt{E_J}$, and $\eta_\mu = \omega_\mu$ for $\mu \ne 0$, 
+and then diagonalising the Hamiltonian:
+\eq{
+H_0&= \frac{1}{2} \sum_\mu \bar \varphi_\mu \bar \varphi_\mu +  \frac{1}{2} \sum_{\sigma \mu} \bar n_\sigma M_{\sigma \mu} \bar n_\mu \notag \\
+&=  \frac{1}{2} \sum_\mu \bar \varphi_\mu^\prime \bar \varphi_\mu^\prime +  \frac{1}{2} \sum_{\mu} \Omega_\mu^2 \bar n_\mu^\prime \bar n_\mu^\prime \notag \\
+&=  \sum_\mu \Omega_\mu  b_\mu^\dag b_\mu.
+}
+In doing so, we have defined the phase and charge number operators in the new basis:
+\eq{
+\bar n_\sigma^\prime = \sum_\mu O^T_{\sigma \mu} \bar n_\mu \quad \text{and} \quad \bar \varphi_\sigma^\prime = \sum_\mu O^T_{\sigma \mu} \bar \varphi_\mu.
+}
+The matrix $O$ denotes the transfer matrix used to go from the original basis to the new basis. It verifies:
+\eq{
+D = O^T M O.
+}
+In this new basis the ladder operators are given by:
+\eq{
+b_\mu = \frac{1}{\sqrt{2}}\bigg( \frac{1}{\sqrt{\Omega_\mu}}\bar \varphi_\mu^\prime + i\sqrt{\Omega_\mu} \bar n_\mu^\prime \bigg).
+}
+We now need to express the original ladder operators in the terms of the operators in the new basis. We start by expressing the original phase and charge number operators in terms of $b_\mu$ and $b_\mu^\dag$:
+\eq{
+\varphi_\sigma &= \frac{\bar \varphi_\sigma}{\eta_\sigma} = \frac{1}{\eta_\sigma} \sum_\mu O_{\sigma\mu} \bar \varphi_\mu^\prime =  \frac{1}{\eta_\sigma} \sum_\mu \frac{O_{\sigma\mu}\sqrt{\Omega_\mu}}{\sqrt{2}}  (b_\mu^\dag + b_\mu)  \notag \\
+n_\sigma &=\eta_\sigma  \bar n_\sigma = \eta_\sigma \sum_\mu O_{\sigma\mu} \bar n_\mu^\prime = i\eta_\sigma  \sum_\mu \frac{O_{\sigma\mu}}{\sqrt{2\Omega_\mu}}  (b_\mu^\dag - b_\mu) 
+}
+Hence:
+\eq{
+a_0^\dag + a_0 &=  \left(\frac{E_J}{8E_C} \right)^{1/4}\sum_\mu  \frac{O_{0\mu}\sqrt{ \Omega_\mu} }{\eta_0}  (b_\mu^\dag + b_\mu) = \sum_\mu  T_{0\mu}  (b_\mu^\dag + b_\mu)             \notag \\
+a_0^\dag - a_0 &=   \left(\frac{8E_C}{E_J} \right)^{1/4} \sum_\mu \frac{\eta_0 O_{0\mu}}{\sqrt{\Omega_\mu}}  (b_\mu^\dag - b_\mu) = \sum_\mu V_{0 \mu}(b_\mu^\dag - b_\mu).  \notag \\
+a_\sigma^\dag + a_\sigma &= \sum_\mu \frac{O_{\sigma\mu}\sqrt{\omega_\sigma \Omega_\mu} }{\eta_\sigma}  (b_\mu^\dag + b_\mu) = \sum_\mu  T_{\sigma\mu}  (b_\mu^\dag + b_\mu)             \notag \\
+a_\sigma^\dag - a_\sigma &=   \sum_\mu \frac{\eta_\sigma O_{\sigma\mu}}{\sqrt{\omega_\sigma\Omega_\mu}}  (b_\mu^\dag - b_\mu) = \sum_\mu V_{\sigma \mu}(b_\mu^\dag - b_\mu).
+}
+
+Finally, we obtain:
+\begin{empheq}[box=\fbox]{align}
+a_\sigma^\dag  &=\frac{1}{2}\sum_\mu\Big[  T_{\sigma\mu}+V_{\sigma\mu}  \Big] b_\mu^\dag+\frac{1}{2}\sum_\mu\Big[   T_{\sigma\mu}-V_{\sigma\mu} \Big] b_\mu \notag \\
+a_\sigma  &=\frac{1}{2}\sum_\mu\Big[  T_{\sigma\mu}-V_{\sigma\mu}  \Big] b_\mu^\dag+\frac{1}{2}\sum_\mu\Big[   T_{\sigma\mu}+V_{\sigma\mu} \Big] b_\mu
+\end{empheq}
+%Also:
+%\eq{
+%b_\sigma^\dag + b_\sigma &\equiv \sum_\mu  T_{\sigma\mu}^T  (a_\mu^\dag + a_\mu)             \notag \\
+%b_\sigma^\dag - b_\sigma &\equiv \sum_\mu V_{\sigma \mu}^T(a_\mu^\dag - a_\mu)
+%}
+%Finally:
+%\eq{
+%b_\sigma^\dag  &=\frac{1}{2}\sum_\mu\Big[  T_{\sigma\mu}^T+V_{\sigma\mu}^T  \Big] a_\mu^\dag+\frac{1}{2}\sum_\mu\Big[   T_{\sigma\mu}^T-V_{\sigma\mu}^T \Big] a_\mu \notag \\
+%b_\sigma  &=\frac{1}{2}\sum_\mu\Big[  T_{\sigma\mu}^T-V_{\sigma\mu}^T \Big] a_\mu^\dag+\frac{1}{2}\sum_\mu\Big[   T_{\sigma\mu}^T+V_{\sigma\mu}^T \Big] a_\mu
+%}
+
+After diagonalising the linear part we get:
+\eq{
+H &= \sum_\mu \Omega_\mu b_\mu^\dag b_\mu  - E_J \cos(\varphi_0) - \frac{E_J}{2} \varphi_0^2 + A(t) (a_1^\dag- a_1)  \notag \\
+&= \sum_\mu \Omega_\mu b_\mu^\dag b_\mu  - E_J \cos\bigg( \sum_\mu u_\mu (b_\mu^\dag + b_\mu)  \bigg) - \frac{E_J}{2} \bigg[ \sum_\mu u_\mu (b_\mu^\dag + b_\mu) \bigg]^2 + A(t) \sum_\mu V_{1\mu} (b_\mu^\dag - b_\mu) 
+}
+with $u_\mu = \sqrt{\frac{\Omega_\mu}{2 E_J}}O_{0\mu}$.
+
+\section{General algorithm}
+
+
+%
+We start with the following wavefunction
+\eq{
+|\Psi\ra = \sum_{n}^{\rm ncs} p_{n}  \ket{z_{n}}
+}
+Here $p_{i,n}$ and $z_{i,n}^p$ are all complex and time dependent variational parameters. 
+
+The Lagrangian is given by:
+
+\eq{
+\mc{L}  &= \braket{ \Psi | \frac{i}{2}  \overleftrightarrow{\partial_t} - \hat H | \Psi  } \notag \\
+& = \braket{ \Psi | \frac{i}{2}  \overrightarrow{\partial_t} - \frac{i}{2}  \overleftarrow{\partial_t} - \hat H | \Psi  }
+}
+
+Explicitely:
+
+\eq{
+\braket{\Psi|  \vv*{\partial}{t} | \Psi } 
+&=  \left(\sum_{m} p_m^\star  \bra{z_m} \right) \vv*{\partial}{t} \left(\sum_{n} p_n \ket{z_n} \right)  \notag \\
+&= \sum_{mn} p_m^\star  \braket{z_m|z_n} \biggl( \dot{p}_n -\frac{1}{2}p_n \Bigl( \sum_p \dot{z}_n^p z_n^{p\star} + z_n^p \dot{z}_n^{p\star} - 2 z_m^{p\star} \dot{z}_n^p \Bigr)  \biggr)
+}
+where we have used: 
+\eq{
+\la z_n | \vv*{\partial}{t} | z_m \ra &= -\f{1}{2} \Le( \sum_p  \dot{z}_m^p z_m^{p\star} +
+z_m^p \dot{z}_m^{p\star} -2 z_n^{p\star}\dot{z}_m^p \Ri) \la z_n | z_m \ra \nn 
+}
+Moreover, since we have that:
+\eq{
+\braket{\Psi|   \overleftarrow{\partial_t} | \Psi }  =  \braket{\Psi| \overrightarrow{\partial_t} | \Psi } ^\star,
+}
+we obtain:
+\eq{
+\mc{L}  &= \frac{i}{2}\sum_{mn}  \braket{z_m|z_n} \biggl[ p_m^\star \dot{p}_n - p_n \dot{p}_m^\star - \frac{1}{2}p_m^\star p_n \Bigl( \sum_p \dot{z}_n^p z_n^{p\star} + z_n^p \dot{z}_n^{p\star} - 2 z_m^{p\star} \dot{z}_n^p - \dot{z}_m^{p\star} z_m ^p- z_m^{p\star} \dot{z}_m^p + 2 z_n^p \dot{z}_m^{p\star} \Bigr)  \biggr] - \braket{\Psi| H | \Psi } 
+}
+
+The Euler-Lagrange equations are: 
+\eq{
+\f{d}{d t} \f{\partial \mc{L}}{\partial \conj{\dot{p}_j}} - \f{\partial
+\mc{L}}{\partial \conj{p_j}} =0  \quad \text{and} \qquad
+\f{d}{d t} \f{\partial
+\mc{L}}{\partial \conjp{\dot{z}_j}} - \f{\partial
+\mc{L}}{\partial \conjp{z_j}} =0.
+}
+
+After $\conj{p_j}$ variation we get
+\begin{empheq}[box=\fbox]{equation}
+ \sum_m \Le( \dot{p}_m - \frac{1}{2}p_m \kp_{mj} \Ri) M_{jm} = -\ii \f{\partial E}{\partial \conj{p_j}}  \equiv P_j
+\label{dynamical_equation_1}
+\end{empheq}
+
+After $\conjp{z_j}$ variation we get
+\eq{
+  \sum_m p_m \conj{p_j} \dot{z}_m^p  M_{jm}
+-\f{1}{4} \sum_m \Le(2 \dot{p}_m - p_m \kp_{mj}  \Ri) \conj{p_j} (z_j^p-2z_m^p)
+M_{jm} 
++\f{1}{4} \sum_m \Le(2 \conj{\dot{p}_m} - \conj{p_m}\conj{\kp_{mj}} \Ri) p_j
+z_j^p M_{mj} = -i \f{\partial E}{\partial \conjp{z_j}}
+\label{rawequation2_B}
+}
+where we have defined:
+\eq{
+&M_{jm} = \braket{z_j|z_m} \\
+&\kappa_{mj} =  \sum_p \dot{z}_m^p z_m^{p\star} + \dot{z}_m^{p\star} z_m^p - 2 z_j^{p\star} \dot{z}_m^p
+}
+Using (\ref{dynamical_equation_1}) to simplify (\ref{rawequation2_B}), we get:
+\begin{empheq}[box=\fbox]{equation}
+\sum_m p_m  \dot{z}_m^p M_{jm}  + \sum_m ( \dot{p}_m
+- \f{1}{2} p_m \kp_{mj})  z_m^p M_{jm}  =  Z_j^p,
+\label{dynamical_equation_2}
+\end{empheq}
+where we have defined:
+\eq{
+Z_j^p = -\ii \Le[\f{\partial E}{\partial \conjp{z_j}}\frac{1}{p_j^\star}  + \f{1}{2} \Le( \f{\partial E}{\partial p_j^\star}
+ + \f{\partial E}{\partial p_j } \frac{p_j}{p_j^\star}  \Ri) z_j^p \Ri] 
+}
+From here on we only derive the equations for $\dot{y}_n$, as those $\dot{z}_n^p$ can be guessed from the former.
+
+From  Eqs. (\ref{dynamical_equation_1}) and (\ref{dynamical_equation_2}), we get:
+\eq{
+\sum_j M_{nj}^{-1} P_j &= \dot{p}_n - \frac{1}{2}\sum_{mj} p_m \kappa_{mj}M_{nj}^{-1}M_{jm} \notag \\
+&=  \dot{p}_n - \frac{1}{2} p_n \Big(  \sum_q \dot{z}_n^q z_n^{q\star} + \dot{z}_n^{q\star} z_n^q \Big) + \sum_{mj} M_{nj}^{-1}M_{jm} p_m \Big( \sum_q z_j^{q\star} \dot{z}_m^q\Bigr) \label{eq_int_1} \\
+%
+\sum_j M_{nj}^{-1} Z_j^p &= p_n \dot{z}_n^p + \dot{p}_n z_n^p - \frac{1}{2} p_n z_n^p \Big(   \sum_q \dot{z}_n^q z_n^{q\star} + \dot{z}_n^{q\star} z_n^q \Big) + \sum_{mj} M_{nj}^{-1}M_{jm} p_m z_m^p\Big( \sum_q z_j^{q\star} \dot{z}_m^q\Big)
+ \label{eq_int_3}
+}
+From here we can obtain:
+\eq{
+\sum_j M_{nj}^{-1} Z_j^p - z_n^p \sum_j M_{nj}^{-1} P_j  = p_n \dot{z}_n^p + \sum_{mj} M_{nj}^{-1}M_{jm} p_m \Big( \sum_q z_j^{q\star} \dot{z}_m^q\Bigr) (z_m^p-z_n^p) \label{eq_int_5}.
+}
+Hence:
+\eq{
+z_i^{p\star}\sum_j M_{nj}^{-1} \Big( Z_j^p - z_n^p  P_j\Big)  = p_n z_i^{p\star}\dot{z}_n^p + \sum_{mj} M_{nj}^{-1}M_{jm} p_m \Big( \sum_q z_j^{q\star} \dot{z}_m^q\Bigr) (z_i^{p\star}z_m^p-z_i^{p\star}z_n^p) \label{eq_int_7}.
+}
+Defining:
+\eq{
+&a_{in} = p_n\Big(  \sum_p z_i^{p\star} \dot{z}_n^p \Big), \\
+&b_{in} = \sum_p z_i^{p\star} z_n^p, \\
+&A_{in} =  \sum_j M_{nj}^{-1} \Big(  \sum_p z_i^{p\star}(Z_j^p - z_n^p P_j )  \Big),
+}
+we obtain an equation from Eq. (\ref{eq_int_5}) which do not depend on the mode index:
+\begin{empheq}[box=\fbox]{equation}
+a_{in} + \sum_{mj} M_{nj}^{-1} M_{jm}a_{jm}  ( b_{im} - b_{in} ) = A_{in} \label{ain_equation}.
+\end{empheq}
+
+
+In order to solve (\ref{ain_equation}), we define:
+\eq{
+d_{in}  \equiv \sum_l M_{il}^{-1} M_{ln} a_{ln},
+}
+and use it to reexpress (\ref{ain_equation}):
+\eq{
+d_{in} + \sum_m\left( \sum_l M_{il}^{-1} M_{ln} (b_{lm} -b_{ln})  \right)d_{nm} = \sum_l M_{il}^{-1} M_{ln} A_{ln}
+}
+Hence we get:
+\begin{empheq}[box=\fbox]{equation}
+\sum_{mj}( \delta_{mn}\delta_{ij} +\alpha_{inm} \delta_{jn} ) d_{jm} = \sum_l M_{il}^{-1} M_{ln} A_{ln}
+\label{alpha_equation}
+\end{empheq}
+where:
+\eq{
+\alpha_{inm} = \sum_l M_{il}^{-1} M_{ln} (b_{lm} - b_{ln} )
+}
+Once we have solved for $d_{in}$, we get $\dot{z}_n^p$ and $\dot{p}_n$  from Eqs. (\ref{eq_int_1}) and (\ref{eq_int_5}):
+\begin{empheq}[box=\fbox]{align}
+&\dot{p}_n = \sum_j M_{nj}^{-1} P_j + \frac{1}{2} p_n \Big( \sum_q \dot{z}_n^q z_n^{q\star} + \dot{z}_n^{q\star} z_n^q \Big)  - \sum_m d_{nm} \\
+&\dot{z}_n^p = \frac{1}{p_n}\left( \sum_j M_{nj}^{-1} (Z_j^p -  z_n^p P_j) - \sum_{m}  d_{nm}(z_m^p-z_n^p)   \right)
+\end{empheq}
+
+\section{Relevant term evaluations}
+
+Let us now evaluate the terms on the RHS dynamical equations (\ref{dynamical_equation_1}) and (\ref{dynamical_equation_2}). \\
+
+First let us note:
+\eq{
+& \braket{ z^m | \Big( \sum_\mu u_\mu (b_\mu^\dag + b_\mu)  \Big)^2 | z^n } = \braket{z^m | z^n} \bigg[ \Big(\sum_\mu u_\mu (z_\mu^{m\star} + z_\mu^n)\Big)^2 +\sum_\mu u_\mu^2  \bigg] \notag \\
+& \braket{ z^m |\cos\bigg( \sum_\mu u_\mu (b_\mu^\dag + b_\mu)  \bigg) |z^n } = \braket{z^m|z^n} \cos\bigg[ \sum_\mu u_\mu (z_\mu^{m\star}+z_\mu^{n}) \bigg]e^{-\frac{1}{2}\sum_\mu u_\mu^2}
+}
+
+First, the energy is given by:
+\eq{	
+E &= \Big(  \sum_{m} p_{m}^\star \bra{z^{m}}\Big) \Bigg[ \sum_\mu \Omega_\mu b_\mu^\dag b_\mu  - E_J \cos\bigg( \sum_\mu u_\mu (b_\mu^\dag + b_\mu)  \bigg) - \frac{E_J}{2} \bigg[ \sum_\mu u_\mu (b_\mu^\dag + b_\mu) \bigg]^2 + A(t) \sum_\mu V_{1\mu} (b_\mu^\dag - b_\mu) \Bigg] \Big(  \sum_{n} p_{n} \ket{z^{n}}\Big)  \notag \\
+&= \sum_{mn} p_m^\star p_n \braket{z^m|z^n}\Bigg[ \sum_\mu  \Omega_\mu z_\mu^{m\star}z_\mu^{n}- E_J \cos\bigg[ \sum_\mu u_\mu (z_\mu^{m\star}+z_\mu^{n}) \bigg]e^{-\frac{1}{2}\sum_\mu u_\mu^2} -\frac{E_J}{2} \bigg(  \Big(\sum_\mu u_\mu (z_\mu^{m\star} + z_\mu^n)\Big)^2 +\sum_\mu u_\mu^2 \bigg) + A(t) \sum_\mu V_{1\mu} (z_\mu^{m\star} - z_\mu^n) \Bigg]
+}
+%
+From this expression we can calculate the derivatives with respect to $p^{j\star}$ and $z_\sigma^{j\star}$:
+\eq{
+\frac{\partial E}{\partial p^{j\star}} &=  \sum_{n} p_n \braket{z^j|z^n}\Bigg[ \sum_\mu  \Omega_\mu z_\mu^{j\star}z_\mu^{n}- E_J \cos\bigg[ \sum_\mu u_\mu (z_\mu^{j\star}+z_\mu^{n}) \bigg]e^{-\frac{1}{2}\sum_\mu u_\mu^2} -\frac{E_J}{2} \bigg(  \Big(\sum_\mu u_\mu (z_\mu^{j\star} + z_\mu^n)\Big)^2 +\sum_\mu u_\mu^2 \bigg)+ A(t) \sum_\mu V_{1\mu} (z_\mu^{j\star} - z_\mu^n) \Bigg] \notag \\
+%
+\frac{\partial E}{\partial z_\sigma^{j\star}} &=\sum_{n} p_j^\star p_n  \braket{z^j|z^n}\Bigg[ -\frac{1}{2}(z_\sigma^j-2 z_\sigma^n)\bigg(\sum_\mu  \Omega_\mu z_\mu^{j\star}z_\mu^{n}- E_J \cos \bigg[ \sum_\mu u_\mu (z_\mu^{j\star}+z_\mu^{n}) \bigg] e^{-\frac{1}{2}\sum_\mu u_\mu^2} -\frac{E_J}{2} \bigg(  \Big(\sum_\mu u_\mu (z_\mu^{j\star} + z_\mu^n)\Big)^2 +\sum_\mu u_\mu^2 \bigg) \notag \\
+&\hspace{1cm}+ A(t)  \sum_\mu V_{1\mu} (z_\mu^{j\star} - z_\mu^n)\bigg) +  A(t) V_{1\sigma}  + z_\sigma^n\Omega_\sigma - u_\sigma E_J \bigg( -e^{-\frac{1}{2}\sum_\mu u_\mu^2} \sin\Big( \sum_\mu u_\mu (z_\mu^{j\star} + z_\mu^n)\Big) +\sum_\mu u_\mu(z_\mu^{j\star} +z_\mu^n)  \bigg) \Bigg]  \notag \\ 
+& -\frac{1}{2}\sum_{m}  p_m^\star p_j  z_\sigma^j  \braket{z^m|z^j}\Bigg[ \sum_\mu  \Omega_\mu z_\mu^{m\star}z_\mu^{j}- E_J \cos \bigg[ \sum_\mu u_\mu (z_\mu^{m\star}+z_\mu^{j}) \bigg] e^{-\frac{1}{2}\sum_\mu u_\mu^2} -\frac{E_J}{2} \bigg(  \Big(\sum_\mu u_\mu (z_\mu^{m\star} + z_\mu^j)\Big)^2 +\sum_\mu u_\mu^2 \bigg) \notag \\
+&\hspace{1cm}+ A(t) \bigg( \sum_\mu V_{1\mu} (z_\mu^{m\star} - z_\mu^j)\bigg) \Bigg] 
+}
+
+
+\section{Evaluating the error between the polaron ansatz and the exact solution}
+
+To check the accuracy of our wave-function, we monitor the norm of the following vector:
+
+\begin{equation}
+\ket{\Phi} =  \biggl( i \frac{\overset{\rightarrow}{\partial_t}}{2} - i \frac{\overset{\leftarrow}{\partial_t}}{2} - H \biggr) \ket{ \Psi}
+\end{equation}
+
+\begin{empheq}[box=\fbox]{equation}
+\braket{\Phi | \Phi} =  - \frac{1}{2} \Re \bigl( \braket{\Psi |\  \overset{\rightarrow}{\partial_t}\ \overset{\rightarrow}{\partial_t}\ | \Psi} \bigr) + \frac {1}{2}  \braket{\Psi |\  \overset{\leftarrow}{\partial_t}\ \overset{\rightarrow}{\partial_t}\ | \Psi} + 2\ i\ \Re  \bigl( \braket{\Psi |\  \overset{\leftarrow}{\partial_t}\ H \ | \Psi} \bigr) +  \braket{\Psi |  H^2 | \Psi}
+\end{empheq}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\bibliographystyle{unsrt}
+%\bibliographystyle{abbrv}
+%\bibliography{BibFiles/biblio}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\end{document}
