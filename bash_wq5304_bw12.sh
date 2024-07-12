@@ -1,6 +1,6 @@
 nl=2
 qb_ini=2
-cav_ini=0
+cav_ini=1
 ncs_ini=1
 ncs_max=1
 dvice=TRSM3
@@ -8,18 +8,18 @@ wc=7.5
 #g_qc=0.25
 g_qc=0
 p0=0.000005
+ad=0.0
 #ad=0.05
 #ad=0.2
 #ad=0.4
-ad=0.2
-alpha=0.008013
+alpha=0.008000898724357726
 #alpha=0.007982354685950231
 #nbm=250
-nbm=2000
+nbm=1000
 tmax=25 #-- rebound at t=120
 offset_abs=1.5
 offset_ang=1
-p2_threshold=015
+p2_threshold=015	
 calc_error=1
 #merr=0.0005
 method=RK45
@@ -37,18 +37,17 @@ PD=0.005
 ECD=0.005
 median_pts=20
 
-wd=7.466
+wd=7.518
 
 bc_lf=2.3
 bc_qb=5.2
-#bc_cav=7.5
-bc_cav=33
+bc_cav=7.5
 bc_hf=12.6
 
 #bw=4
 #bw=8
 #bw=32
-bw=64
+bw=12
 mr_lf=0.0
 mr_qb=0.0
 mr_hf=0.0
