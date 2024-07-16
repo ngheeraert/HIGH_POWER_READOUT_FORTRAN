@@ -583,7 +583,8 @@ CONTAINS
 					i = sys%ind( ii, 2 )
 
 					dE_dyc_sj_ST(s,j,:) = dE_dyc_sj_ST(s,j,:) + pc(s,j)*p(i,n)*st%ovm(s,j,i,n)*( &
-						+ sys%gij(s,i)*sys%Omat(1,:)*( 1 + ( conjg(st%y0(s,j)) + st%y0(i,n) )*(sys%expnt-1) ) &
+						!+ sys%nij(s,i)*sys%Omat(1,:)*( 1 + ( conjg(st%y0(s,j)) + st%y0(i,n) )*(sys%expnt-1) ) &
+						+ sys%nij(s,i)*sys%gk(:)*( 1 + ( conjg(st%y0(s,j)) + st%y0(i,n) )*(sys%expnt-1) ) &
 						+ ( st%y(i,n,:)-0.5_8*st%y(s,j,:) )*st%bigL(s,j,i,n) ) &
 						- 0.5_8*pc(i,n)*p(s,j)*st%ovm(i,n,s,j) * st%y(s,j,:)*st%bigL(i,n,s,j)
 
@@ -610,31 +611,9 @@ CONTAINS
 
 			CALL invertH(ncs,inv_rovm,info)
 
-			!do j=1,ncs
-			!	dE_dpc_sj_ST(j) = sum( p(:)*rovm(j,:)*( sys%w_qb(s) + st%bigW(s,j,:) + sys%ad*dcos( sys%wd * t ) * st%bigU(s,j,:)  )) &
-			!		+ sum( st%p(:,:)*st%ovm(s,j,:,:)*st%bigL(s,j,:,:) )
-
-			!	dE_dyc_sj_ST(j,:) = sys%wwk(:)*matmul( transpose(f(:,:)), pc(j)*p(:)*rovm(j,:) ) &
-			!		+ sys%ad*dcos( sys%wd*t )*sys%omat(1,:) * sum( pc(j)*p(:)*rovm(j,:) ) &
-			!		+ matmul( transpose(f(:,:)), pc(j)*p(:)*rovm(j,:)*(sys%w_qb(s)+st%bigW(s,j,:) + sys%ad*dcos(sys%wd*t)*st%bigU(s,j,:)) ) &
-			!		- 0.5_8*f(j,:)*sum( pc(j)*p(:)*rovm(j,:)*(sys%w_qb(s)+st%bigW(s,j,:) + sys%ad*dcos(sys%wd*t)*st%bigU(s,j,:)) ) &
-			!		- 0.5_8*p(j)*f(j,:)*sum( pc(:)*rovm(:,j)*( sys%w_qb(s) + st%bigW(s,:,j) + sys%ad*dcos(sys%wd*t)*st%bigU(s,:,j) ) ) &
-			!		+ pc(j)*(matmul( transpose(sys%gk(s,:,:)), sum( st%p(:,:)*st%ovm(s,j,:,:), dim=2 ) ) &
-			!		- 0.5_8*f(j,:)*sum( st%bigL(s,j,:,:)*st%p(:,:)*st%ovm(s,j,:,:) ) )  &
-			!		- 0.5_8*p(j)*f(j,:)*sum( conjg(st%p(:,:))*st%ovm(:,:,s,j)*st%bigL(:,:,s,j) )
-
-			!	do i=1, size( st%y,1 )
-			!		dE_dyc_sj_ST(j,:) = dE_dyc_sj_ST(j,:) + &
-			!			+ pc(j)*matmul( transpose(st%y(i,:,:)), st%bigL(s,j,i,:)*st%p(i,:)*st%ovm(s,j,i,:) )
-			!	end do
-			!end do
-
 			do n=1,ncs
-				!dE_dpc_sj_ST(n) = dE_dpc_sj( sys%w_qb, sys%wd, sys%ad, st%t, st%p, st%ovm, st%bigL, st%bigW, st%bigU, s, n)
 				dE_dpc_sj_ST( n ) = dE_dpc_sj( sys, st, s, n )
 				!dE_dyc_sj_ST(s,n,:) = dE_dyc_sjk( sys, st, s, n )
-				!call dE_dyc_sjk( sys%wwk, sys%wd, sys%ad, st%t, sys%gk, sys%w_qb, st%p, st%y, st%ovm, st%bigL, st%bigW, &
-				!	st%bigU, sys%omat, s, n, dE_dyc_sj_ST(n,:) )
 			end do
 
 			bigP = -Ic*dE_dpc_sj_ST
@@ -704,62 +683,6 @@ CONTAINS
 		dE_dpc_sj = sum( st%p(s,:)*st%ovm(s,j,s,:)*( sys%w_qb(s) + st%bigW(s,j,:) &
 			+ sys%Ad*dcos( sys%wd * st%t ) * st%bigU(s,j,:)  )) &
 			+ sum( sum(st%p(:,:)*st%ovm(s,j,:,:)*st%bigL(s,j,:,:), dim=2) )
-	END FUNCTION
-
-	FUNCTION dE_dyc_sjk( sys, st, s, j )
-		type(param), intent(in)       :: 	sys
-		type(state), intent(in)       :: 	st
-		integer,intent(in)              			 			 ::  s,j
-		complex(8),dimension( sys%nmodes ) 	               ::  dE_dyc_sjk
-		complex(8), dimension( sys%nl, st%ncs )            ::  p, pc
-		integer ::  i,n,ii
-
-		p = st%p
-		pc = conjg(st%p)
-		dE_dyc_sjk = 0._8
-
-		!dE_dyc_sjk  = sys%wwk(:)*matmul( transpose(st%y(s,:,:)), pc(s,j)*p(s,:)*st%ovm(s,j,s,:) ) &
-		!	+ sys%Ad*dcos( sys%wd*st%t )*sys%Omat(1,:) * sum( pc(s,j)*p(s,:)*st%ovm(s,j,s,:) ) &
-		!	+ matmul( transpose(st%y(s,:,:)), pc(s,j)*p(s,:)*st%ovm(s,j,s,:)*(sys%w_qb(s)+st%bigW(s,j,:) &
-		!	+ sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,j,:)) ) &
-		!	- 0.5_8*st%y(s,j,:)*sum( pc(s,j)*p(s,:)*st%ovm(s,j,s,:)*(sys%w_qb(s)+st%bigW(s,j,:) &
-		!	+ sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,j,:)) ) &
-		!	- 0.5_8*p(s,j)*st%y(s,j,:)*sum( pc(s,:)*st%ovm(s,:,s,j)*( sys%w_qb(s) &
-		!	+ st%bigW(s,:,j) + sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,:,j) ) )
-
-
-		!do i=1, sys%nl
-		!	dE_dyc_sjk = dE_dyc_sjk + pc(s,j)*( sys%gk(s,i,:)*sum( p(i,:)*st%ovm(s,j,i,:) )  &
-		!		+ matmul( transpose(st%y(i,:,:)), st%bigL(s,j,i,:)*p(i,:)*st%ovm(s,j,i,:) ) &
-		!		- 0.5_8*st%y(s,j,:)*sum( st%bigL(s,j,i,:)*p(i,:)*st%ovm(s,j,i,:) ) ) &
-		!		- 0.5_8*p(s,j)*st%y(s,j,:)*sum( pc(i,:)*st%ovm(i,:,s,j)*st%bigL(i,:,s,j) )
-		!end do
-
-		do n=1, size( p,2 )
-			dE_dyc_sjk = dE_dyc_sjk + pc(s,j)*p(s,n)*st%ovm(s,j,s,n)*(  &
-				+ sys%wwk(:)*st%y(s,n,:) &
-				+ sys%Ad*dcos( sys%wd*st%t )*sys%Omat(1,:)  &
-				+ (st%y(s,n,:)-0.5_8*st%y(s,j,:))*( sys%w_qb(s)+st%bigW(s,j,n) + sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,j,n) ) ) &
-				- 0.5_8*pc(s,n)*p(s,j)*st%ovm(s,n,s,j)*st%y(s,j,:)*( sys%w_qb(s) &
-				+ st%bigW(s,n,j) &
-				+ sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,n,j) &
-			)
-
-			do i=1, size( p,1 )
-			!do ii=1, sys%nb_el_to_keep
-				!if ( sys%ind( ii, 1 ) == s ) then
-					!i=sys%ind( ii, 2 )
-				
-					dE_dyc_sjk = dE_dyc_sjk + pc(s,j)*p(i,n)*st%ovm(s,j,i,n)*( &
-						+ sys%gk(s,i,:) &
-						+ ( st%y(i,n,:)-0.5_8*st%y(s,j,:) )*st%bigL(s,j,i,n) ) &
-						- 0.5_8*pc(i,n)*p(s,j)*st%ovm(i,n,s,j) &
-						* st%y(s,j,:)*st%bigL(i,n,s,j)
-
-				!end if
-			end do
-
-		end do
 	END FUNCTION
 
 	SUBROUTINE calc_wigner( p_in, f_in, ovm, xmin, xmax,  wigner, xnum )
@@ -1227,7 +1150,7 @@ CONTAINS
 						tmp2 = tmp2 + pdotc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*ost%bigL(i,m,j,n) &
 							+ pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
 							- 0.5_8*conjg(kap(i,m,j,n))*ost%bigL(i,m,j,n)  &
-							+ sys%gij(i,j)*sum( sys%Omat(1,:)*ydotc(i,m,:) ) )
+							+ sys%nij(i,j)*sum( sys%gk(:)*ydotc(i,m,:) ) )
 					end do
 
 					!==== tmp3 calculation NEW
@@ -1241,12 +1164,12 @@ CONTAINS
 					do j=1, nl
 						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
 							+ ( 1 + ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) * ( &
-						 			+ sum( sys%gij(:,j)*sys%gij(:,i) ) &
-									+ 2._8*at*sys%gij(i,j) &
+						 			+ sys%g_qc**2*sum( sys%nij(:,j)*sys%nij(:,i) ) &
+									+ 2._8*at*sys%g_qc*sys%nij(i,j) &
 									) &
 							+ ( sys%w_qb(i)+sys%w_qb(j) )*ost%bigL(i,m,j,n) &
 							+ 2._8*sum( sys%wwk*yc(i,m,:)*y(j,n,:) )*ost%bigL(i,m,j,n) &
-							+ sys%gij(i,j)*sum( sys%Omat(1,:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
+							+ sys%nij(i,j)*sum( sys%gk(:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
 							)
 					end do
 
@@ -1372,7 +1295,7 @@ CONTAINS
 						tmp2 = tmp2 + pdotc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*ost%bigL(i,m,j,n) &
 							+ pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
 							- 0.5_8*conjg(kap(i,m,j,n))*ost%bigL(i,m,j,n)  &
-							+ sys%gij(i,j)*sum( sys%Omat(1,:)*ydotc(i,m,:) ) )
+							+ sys%nij(i,j)*sum( sys%Omat(1,:)*ydotc(i,m,:) ) )
 					end do
 
 					!==== tmp3 cajcujation
@@ -1386,23 +1309,23 @@ CONTAINS
 					do j=1, nl
 						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
 								+ ( 1 + ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) * ( &
-						 				+ sum( sys%gij(:,j)*sys%gij(:,i) ) &
-										+ 2._8*at*sys%gij(i,j) &
+						 				+ sys%g_qc**2*sum( sys%nij(:,j)*sys%nij(:,i) ) &
+										+ 2._8*at*sys%nij(i,j)*sys%g_qc &
 										) &
 								+ ( sys%w_qb(i)+sys%w_qb(j) )*ost%bigL(i,m,j,n) &
 								+ 2._8*sum( sys%wwk*yc(i,m,:)*y(j,n,:) )*ost%bigL(i,m,j,n) ) &
-								+ sys%gij(i,j)*sum( sys%Omat(1,:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) &
+								+ sys%nij(i,j)*sum( sys%gk(:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) &
 								)
 					end do
 
 					!do j=1, nl
 					!	tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*(1)  &
 					!		!+ ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 * ( &
-					!		!	 		+ sum( sys%gij(:,j)*sys%gij(:,i) ) &
-					!		!			+ 2._8*at*sys%gij(i,j) &
+					!		!	 		+ sum( sys%nij(:,j)*sys%nij(:,i) ) &
+					!		!			+ 2._8*at*sys%nij(i,j) &
 					!		!			) &
-					!		!+ sum( sys%gij(:,j)*sys%gij(:,i) ) &
-					!		!+ (sys%Omat(1,:)**2)*2._8*at*sys%gij(i,j)  &
+					!		!+ sum( sys%nij(:,j)*sys%nij(:,i) ) &
+					!		!+ (sys%Omat(1,:)**2)*2._8*at*sys%nij(i,j)  &
 					!		!)
 					!end do
 
@@ -1537,6 +1460,62 @@ CONTAINS
 	END FUNCTION
 
 END MODULE dynamics
+
+	!FUNCTION dE_dyc_sjk( sys, st, s, j )
+	!	type(param), intent(in)       :: 	sys
+	!	type(state), intent(in)       :: 	st
+	!	integer,intent(in)              			 			 ::  s,j
+	!	complex(8),dimension( sys%nmodes ) 	               ::  dE_dyc_sjk
+	!	complex(8), dimension( sys%nl, st%ncs )            ::  p, pc
+	!	integer ::  i,n,ii
+
+	!	p = st%p
+	!	pc = conjg(st%p)
+	!	dE_dyc_sjk = 0._8
+
+	!	!dE_dyc_sjk  = sys%wwk(:)*matmul( transpose(st%y(s,:,:)), pc(s,j)*p(s,:)*st%ovm(s,j,s,:) ) &
+	!	!	+ sys%Ad*dcos( sys%wd*st%t )*sys%Omat(1,:) * sum( pc(s,j)*p(s,:)*st%ovm(s,j,s,:) ) &
+	!	!	+ matmul( transpose(st%y(s,:,:)), pc(s,j)*p(s,:)*st%ovm(s,j,s,:)*(sys%w_qb(s)+st%bigW(s,j,:) &
+	!	!	+ sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,j,:)) ) &
+	!	!	- 0.5_8*st%y(s,j,:)*sum( pc(s,j)*p(s,:)*st%ovm(s,j,s,:)*(sys%w_qb(s)+st%bigW(s,j,:) &
+	!	!	+ sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,j,:)) ) &
+	!	!	- 0.5_8*p(s,j)*st%y(s,j,:)*sum( pc(s,:)*st%ovm(s,:,s,j)*( sys%w_qb(s) &
+	!	!	+ st%bigW(s,:,j) + sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,:,j) ) )
+
+
+	!	!do i=1, sys%nl
+	!	!	dE_dyc_sjk = dE_dyc_sjk + pc(s,j)*( sys%gk(s,i,:)*sum( p(i,:)*st%ovm(s,j,i,:) )  &
+	!	!		+ matmul( transpose(st%y(i,:,:)), st%bigL(s,j,i,:)*p(i,:)*st%ovm(s,j,i,:) ) &
+	!	!		- 0.5_8*st%y(s,j,:)*sum( st%bigL(s,j,i,:)*p(i,:)*st%ovm(s,j,i,:) ) ) &
+	!	!		- 0.5_8*p(s,j)*st%y(s,j,:)*sum( pc(i,:)*st%ovm(i,:,s,j)*st%bigL(i,:,s,j) )
+	!	!end do
+
+	!	do n=1, size( p,2 )
+	!		dE_dyc_sjk = dE_dyc_sjk + pc(s,j)*p(s,n)*st%ovm(s,j,s,n)*(  &
+	!			+ sys%wwk(:)*st%y(s,n,:) &
+	!			+ sys%Ad*dcos( sys%wd*st%t )*sys%Omat(1,:)  &
+	!			+ (st%y(s,n,:)-0.5_8*st%y(s,j,:))*( sys%w_qb(s)+st%bigW(s,j,n) + sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,j,n) ) ) &
+	!			- 0.5_8*pc(s,n)*p(s,j)*st%ovm(s,n,s,j)*st%y(s,j,:)*( sys%w_qb(s) &
+	!			+ st%bigW(s,n,j) &
+	!			+ sys%Ad*dcos(sys%wd*st%t)*st%bigU(s,n,j) &
+	!		)
+
+	!		do i=1, size( p,1 )
+	!		!do ii=1, sys%nb_el_to_keep
+	!			!if ( sys%ind( ii, 1 ) == s ) then
+	!				!i=sys%ind( ii, 2 )
+	!			
+	!				dE_dyc_sjk = dE_dyc_sjk + pc(s,j)*p(i,n)*st%ovm(s,j,i,n)*( &
+	!					+ sys%gk(s,i,:) &
+	!					+ ( st%y(i,n,:)-0.5_8*st%y(s,j,:) )*st%bigL(s,j,i,n) ) &
+	!					- 0.5_8*pc(i,n)*p(s,j)*st%ovm(i,n,s,j) &
+	!					* st%y(s,j,:)*st%bigL(i,n,s,j)
+
+	!			!end if
+	!		end do
+
+	!	end do
+	!END FUNCTION
 
 
 !

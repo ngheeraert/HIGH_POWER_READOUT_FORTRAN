@@ -37,6 +37,8 @@ MODULE SYSTM
 		real(rl)					::   cav_ini
 		real(rl)					::   wc
 		real(rl)					::   alpha
+		real(rl)					::   alpha_qb
+		!real(rl)					::   LF_cutoff
 		real(rl)					::   w_ge
 		real(rl)					::   bw
 		character(len=1)			::   bath_type
@@ -62,9 +64,10 @@ MODULE SYSTM
 		real(rl), allocatable		::   dk(:)
 		real(rl), allocatable		::   wwk(:)
 		real(rl), allocatable		::   w_qb(:)
-		real(rl), allocatable		::   g_qc_arr(:,:)
-		real(rl), allocatable		::   gk(:,:,:)
-		real(rl), allocatable		::   gij(:,:)
+		!real(rl), allocatable		::   g_qc_arr(:,:)
+		real(rl), allocatable		::   gk(:)
+		!real(rl), allocatable		::   gij(:,:)
+		real(rl), allocatable		::   nij(:,:)
 		real(rl), allocatable		::   ind(:,:)
 		integer						::   nb_el_to_keep
 		real(rl), allocatable		::   Omat(:,:)
@@ -130,6 +133,8 @@ CONTAINS
 		sys%lim_slow_fact_exp = 10
 		sys%bw=0.4
 		sys%bath_type='F'
+		!sys%LF_cutoff=6.5*2*pi
+		sys%g_qc=1
 		sys%bc_cav = 1
 		sys%bc_qb = 1
 		sys%bc_lf = 1
@@ -195,7 +200,11 @@ CONTAINS
 				else if(buffer=='-al')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%alpha
-					sys%alpha = sys%alpha * twopi
+					sys%alpha = sys%alpha! * twopi
+				else if(buffer=='-al_LF')then 
+					call get_command_argument(i+1, buffer)
+					read(buffer,*) sys%alpha_qb
+					sys%alpha_qb = sys%alpha_qb! * twopi
 				else if(buffer=='-offset_abs')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%offset_abs
@@ -205,11 +214,11 @@ CONTAINS
 				else if(buffer=='-wd')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%wd
-					sys%wd = sys%wd * 2*pi
+					sys%wd = sys%wd * twopi
 				else if(buffer=='-w_ge')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%w_ge
-					sys%w_ge = sys%w_ge * 2*pi
+					sys%w_ge = sys%w_ge * twopi
 				else if(buffer=='-wc')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%wc
@@ -263,6 +272,10 @@ CONTAINS
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%bw
 					sys%bw = sys%bw * 2*pi
+				!else if(buffer=='-LF_cutoff')then 
+				!	call get_command_argument(i+1, buffer)
+				!	read(buffer,*) sys%LF_cutoff
+				!	sys%LF_cutoff = sys%LF_cutoff * 2*pi
 				else if(buffer=='-bath_type')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%bath_type
@@ -321,7 +334,7 @@ CONTAINS
 		!	close(1)
 		!else
 		!	sys%PID = 0
-		!end if
+		!end if0.0012767568167139356
 		allocate( sys%dtadd_arr( sys%ncs_max ) )
 		sys%dtadd_arr = 1.0e5
 		do n = sys%ncs_ini, sys%ncs_max
@@ -335,7 +348,7 @@ CONTAINS
 		allocate( sys%w_qb(sys%nl) )
 		allocate( coupling_op(sys%nl,sys%nl) )
 		!allocate( sys%g_qc_arr(sys%nl,sys%nl) )
-		allocate( sys%gij(sys%nl,sys%nl) )
+		allocate( sys%nij(sys%nl,sys%nl) )
 
 
 		IF (sys%dvice == 'TRSM3') then
@@ -367,10 +380,8 @@ CONTAINS
 		end do
 		sys%w_qb = sys%w_qb * 2*pi
 		sys%w_ge = sys%w_qb(2) - sys%w_qb(1)
-		!sys%g_qc_arr = - sys%g_qc*coupling_op
-		sys%gij = sys%g_qc*coupling_op( 1:sys%nl, 1:sys%nl )
-		!sys%g_qc_arr = sys%g_qc*coupling_op
-		!sys%gij = -sys%g_qc*coupling_op
+
+		sys%nij = coupling_op( 1:sys%nl, 1:sys%nl )
 
 		!-- for the quantromon no minus as it comes from the  cosine
 
@@ -435,13 +446,13 @@ CONTAINS
 
 		allocate( h_pp( sys%nmodes,sys%nmodes ) )
 		allocate( sys%wwk( sys%nmodes ) )
-		!allocate( sys%gk( sys%nl,sys%nl,sys%nmodes ) )
+		allocate( sys%gk( sys%nmodes ) )
 		allocate( sys%Omat( sys%nmodes, sys%nmodes ) )
 
 		do i=1, sys%nmodes
 			h_pp(i,i) = sys%wk(i)
 			if (i>1) then
-				if ( sys%bath_type=='O' ) then
+				if ( sys%bath_type=='O' .or. sys%bath_type=='DO' ) then
 					h_pp(1,i) = dsqrt( 2._8*sys%alpha*sys%dw*sys%wk(i) )
 					h_pp(i,1) = dsqrt( 2._8*sys%alpha*sys%dw*sys%wk(i) )
 				else if ( sys%bath_type=='F' ) then
@@ -453,18 +464,29 @@ CONTAINS
 
 		call diagonalise_all( h_pp, sys%Omat, sys%wwk )
 
+		if (  sys%bath_type=='DO' ) then
+			do i=1, sys%nmodes
+
+				sys%gk(i) = sys%g_qc*sys%Omat(1,i)
+				!if ( sys%wwk(i) < sys%LF_cutoff ) then
+				sys%gk(i) = sys%gk(i) + dsqrt( 2._8*sys%alpha_qb*sys%dw*sys%wwk(i) ) 
+				!end if
+
+			end do
+		end if
+
 		do i=1, sys%nl
-			print*, sys%gij( i , : )
+			print*, sys%nij( i , : )
 		end do
 
 		allocate( gk_abs_keep( sys%nl, sys%nl ) )
 		gk_abs_keep = 0
 		do i=1, sys%nl
 			do j=1, sys%nl
-				if ( abs( sys%gij(i,j) ) > sys%gcut*abs( sys%gij(1,2) )  ) then
+				if ( abs( sys%nij(i,j) ) > sys%gcut*abs( sys%nij(1,2) )  ) then
 					gk_abs_keep(i,j) = 1
 				else
-					sys%gij(i,j) = 0._8
+					sys%nij(i,j) = 0._8
 				end if
 			end do
 		end do
@@ -484,17 +506,17 @@ CONTAINS
 		print*,'-- ', sys%nl**2 - sys%nb_el_to_keep, ' terms removed'
 
 		do i=1, size( sys%ind,1 )
-			print*,sys%gij( sys%ind(i,1) , sys%ind(i,2) )
+			print*,sys%nij( sys%ind(i,1) , sys%ind(i,2) )
 		end do
 
 		do i=1, sys%nl
-			print*, sys%gij( i , : )
+			print*, sys%nij( i , : )
 		end do
 
 
 		!do i=1, sys%nl
 		!	do j=1, sys%nl
-		!		sys%gk(i,j,:) = sys%Omat(1,:) * sys%gij(i,j)
+		!		sys%gk(i,j,:) = sys%Omat(1,:) * sys%nij(i,j)
 		!	enddo
 		!end do
 
@@ -780,11 +802,13 @@ CONTAINS
 		type( state ), intent(in out)	   :: st
 		real(8), intent(out)		   :: sum_time
 		real(8)		   			   :: t1, t2, tmp
+		complex(cx), dimension(sys%nl, st%ncs)	::   yeff
 		integer ::  m,n,i,j,ii,jj
 
 		call cpu_time(t1)
 		do i=1, size(st%y,1)
-			st%y0(i,:) = matmul( st%y(i,:,:), sys%Omat(1,:) )
+			st%y0(i,:) = matmul( st%y(i,:,:), sys%omat(1,:) )
+			yeff(i,:) = matmul( st%y(i,:,:), sys%gk(:) )
 		end do
 
 		!st%ovm = 1._8
@@ -807,14 +831,14 @@ CONTAINS
 			st%bigW(:,m,m) = matmul( conjg(st%y(:,m,:)) * st%y(:,m,:), sys%wwk(:) )
 			do i=1, size(st%y,1)
 				st%ovm(i,m,i,m) = 1
-				st%bigL(i,m,i,m) = sys%gij(i,i) * ( conjg(st%y0(i,m)) + st%y0(i,m) )**sys%expnt
+				st%bigL(i,m,i,m) = sys%nij(i,i) * ( conjg(yeff(i,m)) + yeff(i,m) )**sys%expnt
 			end do
 			do i=1, size(st%y,1)
 				do j=i+1, size(st%y,1)
 					st%ovm(i,m,j,m) = overlap( st%y(i,m,:), st%y(j,m,:) )
 					st%ovm(j,m,i,m) = conjg( st%ovm(i,m,j,m) ) 
 					!st%ovm(i,m,j,m) = st%ovm(i,m,j,m)*exp( sum( conjg(st%y(i,m,:))*st%y(j,m,:)) )
-					st%bigL(i,m,j,m) = sys%gij(i,j) * (conjg(st%y0(i,m)) + st%y0(j,m))**sys%expnt
+					st%bigL(i,m,j,m) = sys%nij(i,j) * (conjg(yeff(i,m)) + yeff(j,m))**sys%expnt
 					st%bigL(j,m,i,m) = conjg( st%bigL(i,m,j,m) )
 				end do
 			end do
@@ -828,7 +852,7 @@ CONTAINS
 					st%ovm(i,n,i,m) = conjg(st%ovm(i,m,i,n))
 					!st%ovm(i,m,i,n) = st%ovm(i,m,i,n)*exp( sum( conjg(st%y(i,m,:))*st%y(i,n,:)) )
 					!st%ovm(i,n,i,m) = conjg(st%ovm(i,m,i,n))
-					st%bigL(i,m,i,n) = sys%gij(i,i) * ( conjg(st%y0(i,m)) + st%y0(i,n) )**sys%expnt
+					st%bigL(i,m,i,n) = sys%nij(i,i) * ( conjg(yeff(i,m)) + yeff(i,n) )**sys%expnt
 					st%bigL(i,n,i,m) = conjg(st%bigL(i,m,i,n))
 				end do
 				do i=1, size(st%y,1)
@@ -839,8 +863,8 @@ CONTAINS
 						st%ovm(j,m,i,n) = conjg( st%ovm(i,n,j,m) )
 						!st%ovm(i,m,j,n) = st%ovm(i,m,j,n)*exp( sum( conjg(st%y(i,m,:))*st%y(j,n,:)) )
 						!st%ovm(i,n,j,m) = st%ovm(i,n,j,m)*exp( sum( conjg(st%y(i,n,:))*st%y(j,m,:)) )
-						st%bigL(i,m,j,n) = sys%gij(i,j) * ( conjg(st%y0(i,m)) + st%y0(j,n) )**sys%expnt
-						st%bigL(i,n,j,m) = sys%gij(i,j) * ( conjg(st%y0(i,n)) + st%y0(j,m) )**sys%expnt
+						st%bigL(i,m,j,n) = sys%nij(i,j) * ( conjg(yeff(i,m)) + yeff(j,n) )**sys%expnt
+						st%bigL(i,n,j,m) = sys%nij(i,j) * ( conjg(yeff(i,n)) + yeff(j,m) )**sys%expnt
 						st%bigL(j,n,i,m) = conjg( st%bigL(i,m,j,n) )
 						st%bigL(j,m,i,n) = conjg( st%bigL(i,n,j,m) )
 					end do
@@ -868,7 +892,7 @@ CONTAINS
 		type(param), intent(in)		::   sys
 		character(len=20)      		:: ratio_char,nl_char,wc_char,ncsini_char,ncsmax_char,&
 			errorthr_char,dtadd_char,addingratio_char, wq_char,gqc_char, wge_char,&
-			alpha_char,nmodes_char,p0_char, qbini_char, cavini_char,  &
+			alpha_char, alpha_qb_char, LF_cutoff_char,nmodes_char,p0_char, qbini_char, cavini_char,  &
 			wd_char, ad_char, offset_abs_char, offset_ang_char, anh_char, dt_char,&
 			errlim_char, device_char,tmax_char, moderatio_char, p2threshold_char, pid_char, &
 			dtadd_ini_char, n_dtadd_change_char, lsfe_char,&
@@ -889,7 +913,9 @@ CONTAINS
 		write( addingratio_char, '(f6.1)' ) sys%adding_ratio
 		write( wge_char, '(f8.4)' ) sys%w_ge/twopi
 		write( gqc_char, '(f8.3)' ) sys%g_qc/twopi
-		write( alpha_char, '(f10.6)' ) sys%alpha/twopi
+		write( alpha_char, '(f10.6)' ) sys%alpha
+		write( alpha_qb_char, '(f10.6)' ) sys%alpha_qb
+		!write( LF_cutoff_char, '(f10.2)' ) sys%LF_cutoff
 		write( nmodes_char, '(I4)' ) sys%nbathmodes
 		write( p0_char, '(e10.1)' ) sys%p0
 		write( bw_char, '(f6.3)' ) sys%bw/twopi
@@ -924,6 +950,7 @@ CONTAINS
 			"_ar"//trim(adjustl(addingratio_char))//&
 			"_g"//trim(adjustl(gqc_char))//&
 			"_al"//trim(adjustl(alpha_char))//&
+			"_"//trim(adjustl(alpha_qb_char))//&
 			"_nm"//trim(adjustl(nmodes_char))//&
 			"_p"//trim(adjustl(p0_char))//&
 			"_wq"//trim(adjustl(wge_char))//&
