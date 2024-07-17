@@ -1,23 +1,23 @@
 nl=2
 qb_ini=2
-cav_ini=1
-ncs_ini=1
-ncs_max=1
+cav_ini=0
+ncs_ini=2
+ncs_max=10
 dvice=TRSM3
 wc=7.5
-#g_qc=0.25
-g_qc=0.0
+g_qc=0.25
+#g_qc=0.0
 p0=0.000005
-ad=0.0
-#ad=0.05
+#ad=0.0
+ad=0.05
 #ad=0.2
 #ad=0.4
 #alpha=0.00802209967161838*0.15915494309189535
-alpha=0.050266341728445615
+alpha=0.0504047481263257
 alpha_LF=0.0
 LF_cutoff=6
-nbm=1000
-tmax=20 #-- rebound at t=120
+nbm=250
+tmax=50 #-- rebound at t=120
 offset_abs=1.5
 offset_ang=1
 p2_threshold=015	
@@ -38,17 +38,17 @@ PD=0.005
 ECD=0.005
 median_pts=20
 
-wd=7.509
+wd=7.5
 
 bc_lf=2.3
 bc_qb=5.2
-bc_cav=6
+bc_cav=7.5
 bc_hf=12.6
 
 #bw=4
 #bw=8
 #bw=32
-bw=12
+bw=8
 mr_lf=0.0
 mr_qb=0.0
 mr_hf=0.0
@@ -56,7 +56,7 @@ mr_hf=0.0
 #merr_max=0.0001
 #merr_int=0.0004
 
-merr_array=(0.01)
+merr_array=(0.1)
 #dtadd_array=(2)
 
 errlim=0.0001
