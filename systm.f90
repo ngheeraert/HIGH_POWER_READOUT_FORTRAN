@@ -63,9 +63,9 @@ MODULE SYSTM
 		real(rl), allocatable		::   wwk(:)
 		real(rl), allocatable		::   w_qb(:)
 		real(rl), allocatable		::   g_qc_arr(:,:)
-		real(rl), allocatable		::   gk(:,:,:)
 		real(rl), allocatable		::   gij(:,:)
-		real(rl), allocatable		::   ind(:,:)
+		!real(rl), allocatable		::   ind(:,:)
+		integer, allocatable		::   ind(:,:)
 		integer						::   nb_el_to_keep
 		real(rl), allocatable		::   Omat(:,:)
 		real(rl)					::   dw
@@ -107,8 +107,7 @@ CONTAINS
 		real(rl), allocatable   		::  coupling_op(:,:), h_pp(:,:)
 		real(rl)						::  min_w_cav, max_w_cav, min_w_qb, min_w_lf, min_w_hf, dw, mode_ratio_cav
 		real(rl)						::  offset_abs, offset_ang
-		real(rl), allocatable 			::  gk_abs_sum(:,:)
-		integer, allocatable 			::  gk_abs_keep(:,:)
+		integer, allocatable 			::  nij_abs_keep(:,:)
 		integer							::  nb_terms_to_keep_on_diag 
 		real(8)							::  gk_cutoff, offset, one_photon_f, p1, p2, dummy
 
@@ -195,7 +194,7 @@ CONTAINS
 				else if(buffer=='-al')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%alpha
-					sys%alpha = sys%alpha * twopi
+					sys%alpha = sys%alpha
 				else if(buffer=='-offset_abs')then 
 					call get_command_argument(i+1, buffer)
 					read(buffer,*) sys%offset_abs
@@ -457,23 +456,23 @@ CONTAINS
 			print*, sys%gij( i , : )
 		end do
 
-		allocate( gk_abs_keep( sys%nl, sys%nl ) )
-		gk_abs_keep = 0
+		allocate( nij_abs_keep( sys%nl, sys%nl ) )
+		nij_abs_keep = 0
 		do i=1, sys%nl
 			do j=1, sys%nl
 				if ( abs( sys%gij(i,j) ) > sys%gcut*abs( sys%gij(1,2) )  ) then
-					gk_abs_keep(i,j) = 1
+					nij_abs_keep(i,j) = 1
 				else
 					sys%gij(i,j) = 0._8
 				end if
 			end do
 		end do
 
-		allocate( sys%ind( sum(gk_abs_keep), 2 ) )
+		allocate( sys%ind( sum(nij_abs_keep), 2 ) )
 		sys%nb_el_to_keep = 0
 		do i=1, sys%nl
 			do j=1, sys%nl
-				if ( gk_abs_keep(i,j) == 1 ) then
+				if ( nij_abs_keep(i,j) == 1 ) then
 					sys%nb_el_to_keep = sys%nb_el_to_keep + 1
 					sys%ind( sys%nb_el_to_keep, 1 ) = i
 					sys%ind( sys%nb_el_to_keep, 2 ) = j
@@ -490,73 +489,6 @@ CONTAINS
 		do i=1, sys%nl
 			print*, sys%gij( i , : )
 		end do
-
-
-		!do i=1, sys%nl
-		!	do j=1, sys%nl
-		!		sys%gk(i,j,:) = sys%Omat(1,:) * sys%gij(i,j)
-		!	enddo
-		!end do
-
-		!allocate( gk_abs_sum( sys%nl, sys%nl ) )
-		!allocate( gk_abs_keep( sys%nl, sys%nl ) )
-		!gk_abs_sum = sum( abs(sys%gk(:,:,:)), dim=3 )
-		!gk_abs_keep = 0
-		!gk_cutoff = -0.001
-		!do i=1, sys%nl
-		!	do j=1, sys%nl
-		!		if ( gk_abs_sum(i,j) > gk_cutoff*gk_abs_sum(1,2)  ) then
-		!			gk_abs_keep(i,j) = 1
-		!		!else
-		!	!		sys%gk(i,j,:) = 0._8
-		!		end if
-		!	end do
-		!end do
-		!   
-		!allocate( sys%ind( sum(gk_abs_keep), 2 ) )
-		!sys%nb_el_to_keep = 0
-		!do i=1, sys%nl
-		!	do j=1, sys%nl
-		!		if ( gk_abs_keep(i,j) == 1 ) then
-		!			sys%nb_el_to_keep = sys%nb_el_to_keep + 1
-		!			sys%ind( sys%nb_el_to_keep, 1 ) = i
-		!			sys%ind( sys%nb_el_to_keep, 2 ) = j
-		!		end if
-		!	end do
-		!end do
-		!!print*,'-- for error calculation, keeping: ', sys%nb_el_to_keep, ' terms'
-		!!print*,'-- ', sys%nl**2 - sys%nb_el_to_keep, ' terms removed'
-
-		!!do i=1, size( sys%ind_D )
-		!!	print*,'here'
-		!!	print*,gk_abs_sum( sys%ind_D(i) , sys%ind_D(i) ) 
-		!!end do
-		
-
-		!if (sys%calc_error == 1) then
-
-		!	allocate( sys%g2mat( sys%nl,sys%nl,sys%nmodes,sys%nmodes ) )
-		!	sys%g2mat = 0._8
-		!	do s=1, sys%nl
-		!		do i=1, sys%nl
-		!			do j=1, sys%nl
-		!				do ss=1, sys%nmodes
-		!					sys%g2mat(i,j,ss,:) = sys%g2mat(i,j,ss,:) + sys%gk(s,i,ss)*sys%gk(s,j,:)
-		!				end do
-		!			end do
-		!		enddo
-		!	enddo
-		!	allocate( sys%sum_diag_g2mat( sys%nl,sys%nl ) )
-		!	sys%sum_diag_g2mat = 0._8
-		!	do i=1, sys%nl
-		!		do j=1, sys%nl
-		!			do k=1, sys%nmodes
-		!				sys%sum_diag_g2mat(i,j) = sys%sum_diag_g2mat(i,j) + sys%g2mat(i,j,k,k)
-		!			end do
-		!		end do
-		!	end do
-
-		!endif
 
 		!================================================
 		!-- defining dressed ground and excited states
@@ -889,7 +821,7 @@ CONTAINS
 		write( addingratio_char, '(f6.1)' ) sys%adding_ratio
 		write( wge_char, '(f8.4)' ) sys%w_ge/twopi
 		write( gqc_char, '(f8.3)' ) sys%g_qc/twopi
-		write( alpha_char, '(f10.6)' ) sys%alpha/twopi
+		write( alpha_char, '(f10.6)' ) sys%alpha
 		write( nmodes_char, '(I4)' ) sys%nbathmodes
 		write( p0_char, '(e10.1)' ) sys%p0
 		write( bw_char, '(f6.3)' ) sys%bw/twopi
