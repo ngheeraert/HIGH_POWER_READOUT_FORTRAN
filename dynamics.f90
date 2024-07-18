@@ -583,7 +583,8 @@ CONTAINS
 					i = sys%ind( ii, 2 )
 
 					dE_dyc_sj_ST(s,j,:) = dE_dyc_sj_ST(s,j,:) + pc(s,j)*p(i,n)*st%ovm(s,j,i,n)*( &
-						+ sys%gij(s,i)*sys%Omat(1,:)*( 1 + ( conjg(st%y0(s,j)) + st%y0(i,n) )*(sys%expnt-1) ) &
+						!+ sys%nij(s,i)*sys%g_qc*sys%Omat(1,:)*( 1 + ( conjg(st%y0(s,j)) + st%y0(i,n) )*(sys%expnt-1) ) &
+						+ sys%nij(s,i)*sys%gk(:)*( 1 + ( conjg(st%y0(s,j)) + st%y0(i,n) )*(sys%expnt-1) ) &
 						+ ( st%y(i,n,:)-0.5_8*st%y(s,j,:) )*st%bigL(s,j,i,n) ) &
 						- 0.5_8*pc(i,n)*p(s,j)*st%ovm(i,n,s,j) * st%y(s,j,:)*st%bigL(i,n,s,j)
 
@@ -1103,7 +1104,8 @@ CONTAINS
 						tmp2 = tmp2 + pdotc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*ost%bigL(i,m,j,n) &
 							+ pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
 							- 0.5_8*conjg(kap(i,m,j,n))*ost%bigL(i,m,j,n)  &
-							+ sys%gij(i,j)*sum( sys%Omat(1,:)*ydotc(i,m,:) ) )
+							!+ sys%nij(i,j)*sum( sys%g_qc*sys%Omat(1,:)*ydotc(i,m,:) ) )
+							+ sys%nij(i,j)*sum( sys%gk(:)*ydotc(i,m,:) ) )
 					end do
 
 					!==== tmp3 calculation NEW
@@ -1114,15 +1116,21 @@ CONTAINS
 								+ sys%wwk(:)*at*sys%Omat(1,:)*(yc(i,m,:)+y(i,n,:)) ) &
 						+ at**2 ) 
 
+					!-- ================================================
+					!-- ================================================
+					!-- g_qc terms without omat need to be updated for LF modes
+					!-- ================================================
+					!-- ================================================
 					do j=1, nl
 						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
 							+ ( 1 + ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) * ( &
-						 			+ sum( sys%gij(:,j)*sys%gij(:,i) ) &
-									+ 2._8*at*sys%gij(i,j) &
+						 			+ sys%g_qc**2*sum( sys%nij(:,j)*sys%nij(:,i) ) &
+									+ 2._8*at*sys%g_qc*sys%nij(i,j) &
 									) &
 							+ ( sys%w_qb(i)+sys%w_qb(j) )*ost%bigL(i,m,j,n) &
 							+ 2._8*sum( sys%wwk*yc(i,m,:)*y(j,n,:) )*ost%bigL(i,m,j,n) &
-							+ sys%gij(i,j)*sum( sys%Omat(1,:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
+							!+ sys%nij(i,j)*sum( sys%g_qc*sys%Omat(1,:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
+							+ sys%nij(i,j)*sum( sys%gk(:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
 							)
 					end do
 
@@ -1133,151 +1141,6 @@ CONTAINS
 
 		error = abs( ( -0.5*real(tmp4) + 0.5*tmp1 - 2*aimag(tmp2) + tmp3 )  )
 	END FUNCTION error
-
-	FUNCTION error_PB( sys, st )
-		type(param), intent(in)   ::     sys
-		type(state), intent(in)   ::     st
-		type(param)			      ::     sys2
-		type(state)			      ::     ost, new_st
-		real(8)				      ::	 energy_t
-		real(8)  			 	  ::	 error_PB
-		complex(8)				  ::	 tmp1, tmp2, tmp3, tmp4, tmp_sum, sum_diag_g2mat
-		real(8)				  	  ::	 at, dummy1, dummy2, dummy3
-		integer                   ::	 nmodes, nl, ncs,m,l,n,i,j,k,pp, msfexp, sfexp, s
-		complex(8), dimension(sys%nl,st%ncs)         		::	 p, pdot, pc, pdotc, new_pdot
-		complex(8), dimension(sys%nl,st%ncs,sys%nmodes)     ::	 y, ydot, yc, ydotc, new_ydot
-		complex(8), dimension(st%ncs)         				::	 opdd
-		complex(8), dimension(st%ncs,sys%nmodes)     		::	 oydd
-		complex(8), dimension(st%ncs,st%ncs)         		::	 ovmr
-		complex(8), dimension(sys%nl,st%ncs,sys%nl,st%ncs) 		::	 kap
-		integer									::   info
-
-		tmp1 = 0._8
-		tmp2 = 0._8
-		tmp3 = 0._8
-		tmp4 = 0._8
-
-		msfexp = 0
-		sfexp = 0
-
-		pdot = 0._rl
-		ydot = 0._rl
-		new_pdot = 0._rl
-		new_ydot = 0._rl
-
-		sys2 = sys
-		sys2%dt = sys%dt*1e-4
-		ost = st
-		CALL calc_derivatives( sys2, ost, pdot, ydot, dummy1, dummy2 )
-
-		new_st = st
-		sys2%tmax = new_st%t + 2*sys2%dt
-		CALL time_evolve_RK45_no_buffer( sys2, new_st, 1.0e3_8, 1.0e3_8, msfexp, msfexp, sfexp, info, .false., &
-				dummy1, dummy2, dummy3 )
-		CALL calc_derivatives( sys2, new_st, new_pdot, new_ydot, dummy1, dummy2 )
-
-		energy_t = energy( sys, ost )
-
-		p = ost%p
-		y = ost%y
-
-		pc = conjg( p )
-		yc = conjg( y )
-		pdotc = conjg( pdot )
-		ydotc = conjg( ydot )
-
-		at = sys%ad*dcos( sys%wd*ost%t )
-
-		nl = size( p,1 )
-		ncs = size( p,2 )
-		nmodes = size( y,3 )
-
-		do s=1, nl
-			do m=1, ncs
-				do l=1, nl
-					do n=1, ncs
-						kap( s,m,l,n ) = sum( ydot(s,m,:)*yc(s,m,:) &
-							+ ydotc(s,m,:)*y(s,m,:) - 2._8*yc(l,n,:)*ydot(s,m,:) )
-					end do
-				end do
-			end do
-		end do
-
-		LOOPi: do i=1, nl
-
-			ovmr = ost%ovm(i,:,i,:)
-
-			opdd = ( new_pdot(i,:) - pdot(i,:) )/(new_st%t-ost%t)
-			oydd = ( new_ydot(i,:,:) - ydot(i,:,:) )/(new_st%t-ost%t)
-
-			do m=1, ncs
-				do n=1, ncs
-					!==== tmp1 cajcujation
-					tmp1 = tmp1 + ovmr(m,n)*( &
-						+ pdotc(i,m)*pdot(i,n) &
-						- 0.5_8 * pdotc(i,m)*p(i,n)*kap(i,n,i,m) &
-						- 0.5_8 * pc(i,m)*pdot(i,n)*conjg(kap(i,m,i,n)) &
-						+ pc(i,m)*p(i,n)*( sum( ydotc(i,m,:)*ydot(i,n,:) )&
-						+ 0.25_8*conjg(kap(i,m,i,n))*kap(i,n,i,m)&
-						)&
-						)
-
-					!==== tmp4 cajcujation
-					tmp4 = tmp4 + pc(i,m)*ovmr(m,n)*( &
-						+ opdd(n) &
-						- pdot(i,n)*kap(i,n,i,m) &
-						+ p(i,n)*( sum( yc(i,m,:)*oydd(n,:)&
-						- 0.5_8*( y(i,n,:)*conjg(oydd(n,:))&
-						+ yc(i,n,:)*oydd(n,:)&
-						+ 2._8*ydotc(i,n,:)*ydot(i,n,:) ) )&
-						+ 0.25_8*kap(i,n,i,m)**2 )&
-						)
-
-					!==== tmp2 cajcujation
-					tmp2 = tmp2 + pdotc(i,m)*p(i,n)*ost%ovm(i,m,i,n)*( &
-						+ sys%w_qb(i) &
-						+ ost%bigW(i,m,n)  &
-						+ at*ost%bigU(i,m,n) ) &
-						+ pc(i,m)*p(i,n)*ovmr(m,n)*( &
-						- 0.5_8*conjg(kap(i,m,i,n)) &
-						*( sys%w_qb(i)+ost%bigW(i,m,n)+at*ost%bigU(i,m,n) ) &
-						+ sum( sys%wwk(:)*ydotc(i,m,:)*y(i,n,:) &
-						+ at*sys%Omat(1,:)*ydotc(i,m,:) ) )
-
-					do j=1, nl
-						tmp2 = tmp2 + pdotc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*ost%bigL(i,m,j,n) &
-							+ pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
-							- 0.5_8*conjg(kap(i,m,j,n))*ost%bigL(i,m,j,n)  &
-							+ sys%gij(i,j)*sum( sys%Omat(1,:)*ydotc(i,m,:) ) )
-					end do
-
-					!==== tmp3 cajcujation
-					tmp3 = tmp3 + pc(i,m)*p(i,n)*ost%ovm(i,m,i,n)*( (sys%w_qb(i) &
-						+ ost%bigW(i,m,n) &
-						+ at*ost%bigU(i,m,n) )**2 &
-						+ sum( sys%wwk(:)**2*yc(i,m,:)*y(i,n,:)  &
-						+ sys%wwk(:)*at*sys%Omat(1,:)*(yc(i,m,:)+y(i,n,:)) &
-						+ at**2 ) )
-
-					do j=1, nl
-						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
-								+ ( 1 + ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) * ( &
-						 				+ sum( sys%gij(:,j)*sys%gij(:,i) ) &
-										+ 2._8*at*sys%gij(i,j) &
-										) &
-								+ ( sys%w_qb(i)+sys%w_qb(j) )*ost%bigL(i,m,j,n) &
-								+ 2._8*sum( sys%wwk*yc(i,m,:)*y(j,n,:) )*ost%bigL(i,m,j,n) ) &
-								+ sys%gij(i,j)*sum( sys%Omat(1,:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) &
-								)
-					end do
-
-				end do
-			end do
-
-		end do LOOPi
-
-		error_PB = abs( ( -0.5*real(tmp4) + 0.5*tmp1 - 2*aimag(tmp2) + tmp3 )  )
-	END FUNCTION error_PB
 
 	FUNCTION median( arr )
 		real(rl), intent(in)	::  arr(:)

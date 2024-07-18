@@ -57,8 +57,10 @@ MODULE SYSTM
 		real(rl)					::   g_qc
 		real(rl), allocatable		::   dtadd_arr(:)
 		real(rl), allocatable		::   wk(:)
-		real(rl), allocatable		::   wwk(:)
 		real(rl), allocatable		::   gk(:)
+		!real(rl), allocatable		::   ggk(:)
+		real(rl), allocatable		::   wwk(:)
+		real(rl), allocatable		::   wwk2(:)
 		real(rl), allocatable		::   w_qb(:)
 		real(rl), allocatable		::   nij(:,:)
 		integer, allocatable		::   ind(:,:)
@@ -415,10 +417,10 @@ CONTAINS
 
 		allocate( h_pp( sys%nmodes,sys%nmodes ) )
 		allocate( sys%wwk( sys%nmodes ) )
-		allocate( sys%gk( sys%nmodes ) )
+		allocate( sys%wwk2( sys%nmodes ) )
 		!allocate( sys%gk(sys%nmodes) )
 		allocate( sys%omat( sys%nmodes, sys%nmodes ) )
-		sys%gk(:) = 0._8
+		sys%wwk2(:) = 0._8
 
 		do i=1, sys%nmodes
 			h_pp(i,i) = sys%wk(i)
@@ -435,12 +437,12 @@ CONTAINS
 
 		call diagonalise_all( h_pp, sys%Omat, sys%wwk )
 
-		sys%gk(:) = sys%g_qc*sys%omat(1,:)
+		sys%wwk2(:) = sys%g_qc*sys%omat(1,:)
 		if ( sys%bath_type=='DO' ) then
 			do i=1, sys%nmodes
 
 				if (sys%wwk(i)>sys%cutoff_LF) exit
-				sys%gk(i) = dsqrt( 2._8*sys%alpha_LF*sys%dw*sys%wwk(i) )
+				sys%wwk2(i) = dsqrt( 2._8*sys%alpha_LF*sys%dw*sys%wwk(i) )
 
 			end do
 		end if
@@ -711,8 +713,8 @@ CONTAINS
 		call cpu_time(t1)
 		do i=1, size(st%y,1)
 			st%y0(i,:) = matmul( st%y(i,:,:), sys%Omat(1,:) )
-			!gyeff(i,:) = matmul( st%y(i,:,:), sys%g_qc*sys%Omat(1,:) )
-			gyeff(i,:) = matmul( st%y(i,:,:), sys%gk(:) )
+			gyeff(i,:) = matmul( st%y(i,:,:), sys%g_qc*sys%Omat(1,:) )
+			!gyeff(i,:) = matmul( st%y(i,:,:), sys%gk(:) )
 		end do
 
 		!st%ovm = 1._8
@@ -819,7 +821,7 @@ CONTAINS
 		write( gqc_char, '(f8.3)' ) sys%g_qc/twopi
 		write( alpha_char, '(f10.6)' ) sys%alpha
 		write( alpha_LF_char, '(f10.6)' ) sys%alpha_LF
-		write( cutoff_LF_char, '(f10.3)' ) sys%cutoff_LF/twopi
+		write( cutoff_LF_char, '(f10.6)' ) sys%cutoff_LF/twopi
 		write( nmodes_char, '(I4)' ) sys%nbathmodes
 		write( p0_char, '(e10.1)' ) sys%p0
 		write( bw_char, '(f6.3)' ) sys%bw/twopi
