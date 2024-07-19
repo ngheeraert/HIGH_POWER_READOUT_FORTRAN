@@ -61,7 +61,10 @@ MODULE SYSTM
 		real(rl), allocatable		::   gk(:)
 		real(rl), allocatable		::   w_qb(:)
 		real(rl), allocatable		::   nij(:,:)
+		real(rl), allocatable		::   n2ij(:,:)
 		integer, allocatable		::   ind(:,:)
+		real(rl)					::   sum_g2
+		real(rl)					::   sum_og
 		integer						::   nb_el_to_keep
 		real(rl), allocatable		::   omat(:,:)
 		real(rl)					::   dw
@@ -319,7 +322,7 @@ CONTAINS
 		allocate( sys%w_qb(sys%nl) )
 		allocate( charge_op(sys%nl,sys%nl) )
 		allocate( sys%nij(sys%nl,sys%nl) )
-
+		allocate( sys%n2ij(sys%nl,sys%nl) )
 
 		IF (sys%dvice == 'TRSM3') then
 			open (unit=100,file='qubit_params/T_FOR_E_lvl_Ec0.280_Ej14.000.txt', action="read",status="old")
@@ -351,10 +354,13 @@ CONTAINS
 		sys%w_qb = sys%w_qb * 2*pi
 		sys%w_ge = sys%w_qb(2) - sys%w_qb(1)
 		sys%nij = charge_op( 1:sys%nl, 1:sys%nl )
+		do i=1, sys%nl
+			do j=1, sys%nl
+				sys%n2ij(i,j) = sum( sys%nij(:,j)*sys%nij(:,i) )
+			end do
+		end do
 
 		!-- for the quantromon no minus as it comes from the  cosine
-
-
 		if (sys%nl>2) then
 			sys%anh = sys%w_qb(3) - 2*sys%w_qb(2)
 		else
@@ -444,6 +450,8 @@ CONTAINS
 
 			end do
 		end if
+		sys%sum_g2 = sum( sys%gk(:)**2 )
+		sys%sum_og = sum( sys%omat(1,:)*sys%gk(:) )
 
 		do i=1, sys%nl
 			print*, sys%nij( i , : )

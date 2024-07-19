@@ -31,7 +31,7 @@ ncut=0.000001
 
 n_dtadd_change=3
 dtadd=0.2
-dt_add_ini=0.3
+dt_add_ini=0.25
 
 dt=0.005
 #PD=0.025
@@ -57,7 +57,7 @@ mr_hf=0.0
 #merr_max=0.0001
 #merr_int=0.0004
 
-merr_array=(0.01 0.02 0.03 0.025 0.035)
+merr_array=(0.01 0.02 0.04 0.05)
 #dtadd_array=(2)
 
 errlim=0.0001
