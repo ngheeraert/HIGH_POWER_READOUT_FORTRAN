@@ -57,7 +57,7 @@ mr_hf=0.0
 #merr_max=0.0001
 #merr_int=0.0004
 
-merr_array=(0.01 0.03 0.025 0.035)
+merr_array=(0.01 0.02 0.03 0.025 0.035)
 #dtadd_array=(2)
 
 errlim=0.0001
