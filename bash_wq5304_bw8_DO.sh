@@ -31,7 +31,7 @@ ncut=0.000001
 
 n_dtadd_change=3
 dtadd=0.2
-dt_add_ini=0.25
+dt_add_ini=0.35
 
 dt=0.005
 #PD=0.025

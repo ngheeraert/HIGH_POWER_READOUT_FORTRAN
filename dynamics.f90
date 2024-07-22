@@ -1119,27 +1119,29 @@ CONTAINS
 					!-- g_qc terms without omat need to be updated for LF modes
 					!-- ================================================
 					!-- ================================================
+					!do j=1, nl
+					!	tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
+					!		!+ sys%g_qc**2*sum( sys%nij(:,j)*sys%nij(:,i) ) &
+					!		!+ 2._8*at*sys%g_qc*sys%nij(i,j) &
+					!		!+ ( ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) * ( 2._8*at*sys%g_qc*sys%nij(i,j) ) &
+					!		+0& !( ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) * (  sys%g_qc**2*sum( sys%nij(:,j)*sys%nij(:,i) ) ) &
+					!		) 
+					!end do
+
+					!-- updated code fix attempt
 					do j=1, nl
 						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
-							+ ( 1 + ( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) * ( &
-						 			+ sys%g_qc**2*sum( sys%nij(:,j)*sys%nij(:,i) ) &
-									+ 2._8*at*sys%g_qc*sys%nij(i,j) &
-									) &
-							+ ( sys%w_qb(i)+sys%w_qb(j) )*ost%bigL(i,m,j,n) &
-							+ 2._8*sum( sys%wwk*yc(i,m,:)*y(j,n,:) )*ost%bigL(i,m,j,n) &
-							!+ sys%nij(i,j)*sum( sys%g_qc*sys%Omat(1,:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
-							+ sys%nij(i,j)*sum( sys%gk(:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
-							)
+							+ sys%n2ij(i,j)*( sys%sum_g2  &
+							 			+ sys%g_qc**2*( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) &
+							+ 2._8*at*( sys%nij(i,j)*sys%sum_og & 
+										+ ost%bigL(i,m,j,n)*( conjg(ost%y0(i,m)) + ost%y0(j,n) ) ) &
+						)
 					end do
 
-					!-- updated code
 					do j=1, nl
 						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
-							+ sys%n2ij(i,j)*( ( ost%bigL(i,m,j,n)/sys%nij(i,j) )**2 + sys%sum_g2 ) &
-							+ 2._8*at*( ost%bigL(i,m,j,n)*( conjg(ost%y0(i,m)) + ost%y0(j,n) ) + sys%nij(i,j)*sys%sum_og ) &
 							+ ( sys%w_qb(i)+sys%w_qb(j) )*ost%bigL(i,m,j,n) &
 							+ 2._8*sum( sys%wwk*yc(i,m,:)*y(j,n,:) )*ost%bigL(i,m,j,n) &
-							!+ sys%nij(i,j)*sum( sys%g_qc*sys%Omat(1,:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
 							+ sys%nij(i,j)*sum( sys%gk(:)*sys%wwk(:)*( y(j,n,:)+yc(i,m,:) ) ) &
 							)
 					end do
