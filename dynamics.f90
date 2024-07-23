@@ -36,7 +36,7 @@ CONTAINS
 														full_cumu_sum_time, full_cumu_err_time, t_err_1, t_err_2
 		real(8)									::  old_full_cumu_solve_time, old_full_cumu_other_time, &
 														old_full_cumu_sum_time,old_full_cumu_err_time
-		complex(cx), allocatable					::  eigen_vals_0(:), eigen_vals_1(:)
+		complex(cx), allocatable				::  eigen_vals_0(:), eigen_vals_1(:)
 
 
 		!======================================================== 
@@ -728,7 +728,7 @@ CONTAINS
 		return
 	END SUBROUTINE
 
-	!-- routine to coherent states
+	!-- routine to coherent states 
 	SUBROUTINE add_coherent_state(sys,st)
 		type(param), intent(in)				:: sys
 		type(state), intent(in out)   		:: st
@@ -1131,9 +1131,9 @@ CONTAINS
 					!-- updated code fix attempt
 					do j=1, nl
 						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
-							+ sys%n2ij(i,j)*( sys%sum_g2  &
+							+ sys%n2ij(i,j)*( 1 & !sys%sum_g2  &
 							 			+ sys%g_qc**2*( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) &
-							+ 2._8*at*( sys%nij(i,j)*sys%sum_og & 
+							+ 2._8*at*( sys%nij(i,j)*(1+sys%sum_og*0) & 
 										+ ost%bigL(i,m,j,n)*( conjg(ost%y0(i,m)) + ost%y0(j,n) ) ) &
 						)
 					end do

@@ -442,16 +442,21 @@ CONTAINS
 		call diagonalise_all( h_pp, sys%Omat, sys%wwk )
 
 		sys%gk(:) = sys%g_qc*sys%omat(1,:)
-		if ( sys%bath_type=='DO' ) then
+		if ( ( sys%bath_type=='O' ) .and. ( sys%alpha_LF>1e-9 ) ) then
 			do i=1, sys%nmodes
 
 				if (sys%wwk(i)>sys%cutoff_LF) exit
-				sys%gk(i) = dsqrt( 2._8*sys%alpha_LF*sys%dw*sys%wwk(i) )
+				sys%gk(i) = sys%gk(i) + dsqrt( 2._8*sys%alpha_LF*sys%dw*sys%wwk(i) )
 
 			end do
 		end if
-		sys%sum_g2 = sum( sys%gk(:)**2 )
-		sys%sum_og = sum( sys%omat(1,:)*sys%gk(:) )
+		!sys%sum_g2 = sum( sys%gk(:)**2 )
+		!sys%sum_og = sum( sys%omat(1,:)*sys%gk(:) )
+		!print*, 'alpha_LF', sys%alpha_LF
+		!print*, 'cutoff_LF', sys%cutoff_LF/(twopi)
+		!print*, 'sys%dw', sys%dw
+		!!print*, 'sys%gk', sys%gk
+		!stop
 
 		do i=1, sys%nl
 			print*, sys%nij( i , : )
@@ -673,19 +678,51 @@ CONTAINS
 		
 		if (sys%cav_ini > -1e-7) then
 
-			do l=1,sys%nl
+			!do l=1,sys%nl
 
-				st%y(l,1,:) = sys%cav_ini * sys%Omat(1,:) 
+			!	!st%y(l,1,:) = sys%cav_ini * sys%Omat(1,:) 
 
-				if (st%ncs > 1) then
-					do n=2, st%ncs
-						st%y(l,n,:) = ( sys%cav_ini + offset ) * sys%Omat(1,:)
-					end do
-				end if
+			!	!if (st%ncs > 1) then
+			!	!	do n=2, st%ncs
+			!	!		st%y(l,n,:) = ( sys%cav_ini + offset ) * sys%Omat(1,:)
+			!	!	end do
+			!	!end if
+			!	
+			!	!if (st%ncs > 1) then
+			!	!	do n=2, st%ncs
+			!	!		st%y(l,n,:) = offset*n
+			!	!	end do
+			!	!end if
+			!	!st%y(1,n,:) = offset*n
+			!	st%y(l,1,:) = 0
+			!	st%y(l,2,:) = 0.1
+			!	st%y(l,3,:) = -0.1
+			!	st%p(l,1) = 1
+			!	st%p(l,2) = sys%p0*10
+			!	st%p(l,3) = -sys%p0*10
 
-			end do
+			!end do
+			st%y(1,1,:) = 0
+			st%y(1,2,:) = 0.1
+			st%y(1,3,:) = -0.1
+			st%p(1,1) = sys%p0*20
+			st%p(1,2) = sys%p0*20
+			st%p(1,3) = -sys%p0*20
+			if (st%ncs > 3) then
+				st%y(1,4,:) = 0.1
+				st%p(1,4) = sys%p0
+			end if
 
-			st%p( sys%qb_ini, 1 ) = 1.0
+			st%y(2,1,:) = 0
+			st%y(2,2,:) = 0.1
+			st%y(2,3,:) = -0.1
+			st%p(2,1) = 1
+			st%p(2,2) = sys%p0*20
+			st%p(2,3) = -sys%p0*20
+			if (st%ncs > 3) then
+				st%y(2,4,:) = 0.1
+				st%p(2,4) = sys%p0
+			end if
 
 		else 
 
