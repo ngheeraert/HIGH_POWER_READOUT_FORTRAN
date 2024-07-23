@@ -678,51 +678,17 @@ CONTAINS
 		
 		if (sys%cav_ini > -1e-7) then
 
-			!do l=1,sys%nl
+			do l=1,sys%nl
 
-			!	!st%y(l,1,:) = sys%cav_ini * sys%Omat(1,:) 
+				st%y(l,1,:) = sys%cav_ini * sys%Omat(1,:) 
 
-			!	!if (st%ncs > 1) then
-			!	!	do n=2, st%ncs
-			!	!		st%y(l,n,:) = ( sys%cav_ini + offset ) * sys%Omat(1,:)
-			!	!	end do
-			!	!end if
-			!	
-			!	!if (st%ncs > 1) then
-			!	!	do n=2, st%ncs
-			!	!		st%y(l,n,:) = offset*n
-			!	!	end do
-			!	!end if
-			!	!st%y(1,n,:) = offset*n
-			!	st%y(l,1,:) = 0
-			!	st%y(l,2,:) = 0.1
-			!	st%y(l,3,:) = -0.1
-			!	st%p(l,1) = 1
-			!	st%p(l,2) = sys%p0*10
-			!	st%p(l,3) = -sys%p0*10
-
-			!end do
-			st%y(1,1,:) = 0
-			st%y(1,2,:) = 0.1
-			st%y(1,3,:) = -0.1
-			st%p(1,1) = sys%p0*20
-			st%p(1,2) = sys%p0*20
-			st%p(1,3) = -sys%p0*20
-			if (st%ncs > 3) then
-				st%y(1,4,:) = 0.1
-				st%p(1,4) = sys%p0
-			end if
-
-			st%y(2,1,:) = 0
-			st%y(2,2,:) = 0.1
-			st%y(2,3,:) = -0.1
-			st%p(2,1) = 1
-			st%p(2,2) = sys%p0*20
-			st%p(2,3) = -sys%p0*20
-			if (st%ncs > 3) then
-				st%y(2,4,:) = 0.1
-				st%p(2,4) = sys%p0
-			end if
+				if (st%ncs > 1) then
+					do n=2, st%ncs
+						st%y(l,n,:) = ( sys%cav_ini + offset ) * sys%Omat(1,:)
+					end do
+				end if
+				
+			end do
 
 		else 
 

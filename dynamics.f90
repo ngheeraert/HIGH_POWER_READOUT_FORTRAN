@@ -1131,9 +1131,9 @@ CONTAINS
 					!-- updated code fix attempt
 					do j=1, nl
 						tmp3 = tmp3 + pc(i,m)*p(j,n)*ost%ovm(i,m,j,n)*( &
-							+ sys%n2ij(i,j)*( 1 & !sys%sum_g2  &
+							+ sys%n2ij(i,j)*( sys%sum_g2  &
 							 			+ sys%g_qc**2*( conjg(ost%y0(i,m)) + ost%y0(j,n) )**2 ) &
-							+ 2._8*at*( sys%nij(i,j)*(1+sys%sum_og*0) & 
+							+ 2._8*at*( sys%nij(i,j)*sys%sum_og & 
 										+ ost%bigL(i,m,j,n)*( conjg(ost%y0(i,m)) + ost%y0(j,n) ) ) &
 						)
 					end do
