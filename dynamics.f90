@@ -333,10 +333,10 @@ CONTAINS
 													last_error_calc, t0, t_solve, t_other, t_sum
 		logical								::  dt_corrected
 		real(8)					  			:: 	a_mat( 5, 5 ), c_mat( 5 ), b_rk4( 6 ), b_rk5( 6 )
-		complex(16), dimension(size(st%p,1),size(st%p,2))   :: 	kp1, kp2, kp3, kp4, kp5, kp6
-		complex(16), dimension(size(st%y,1), size(st%y,2), size(st%y,3))::  kf1, kf2, kf3, kf4, kf5, kf6
-		complex(16), dimension(size(st%p,1),size(st%p,2))             		::  pdot_RK4, pdot_RK5
-		complex(16), dimension(size(st%y,1), size(st%y,2), size(st%y,3))     ::  fdot_RK4, fdot_RK5
+		complex(cx), dimension(size(st%p,1),size(st%p,2))   :: 	kp1, kp2, kp3, kp4, kp5, kp6
+		complex(cx), dimension(size(st%y,1), size(st%y,2), size(st%y,3))::  kf1, kf2, kf3, kf4, kf5, kf6
+		complex(cx), dimension(size(st%p,1),size(st%p,2))             		::  pdot_RK4, pdot_RK5
+		complex(cx), dimension(size(st%y,1), size(st%y,2), size(st%y,3))     ::  fdot_RK4, fdot_RK5
 
 		t0 = st%t
 		midst = st
@@ -533,19 +533,19 @@ CONTAINS
 		type(state), intent(in)       :: 	st
 		real(8)					      :: t, tA1, tA2, tB1, tB2
 		real(8), intent(out)	      :: solve_time, other_time
-		complex(16), intent(out)   :: pdot(size(st%p,1),size(st%p,2))
-		complex(16), intent(out)   :: fdot(size(st%y,1),size(st%y,2),size(st%y,3))
+		complex(cx), intent(out)   :: pdot(size(st%p,1),size(st%p,2))
+		complex(cx), intent(out)   :: fdot(size(st%y,1),size(st%y,2),size(st%y,3))
 		integer                   :: nmodes, nq, ncs
-		complex(16), dimension(size(st%y,2))             ::  bigP, dE_dpc_sj_ST!, p, pc,
-		complex(16), dimension( size(st%y,1), size(st%y,2) )            ::  p, pc
-		complex(16), dimension(size(st%y,2), size(st%y,3))     :: f, bigF, inv_rovm_mul_F_m_fnP
-		complex(16), dimension(size(st%y,1), size(st%y,2), size(st%y,3))     :: dE_dyc_sj_ST
-		complex(16), dimension(size(st%y,2),size(st%y,2))         :: inv_rovm, rovm, b, Amat, RHS, d
-		complex(16), dimension(size(st%y,2),size(st%y,2),size(st%y,2))  :: alphaT
-		complex(16), allocatable          :: packed_RHS(:), d_packed(:)
-		complex(16), allocatable  :: mat2D(:,:)
+		complex(cx), dimension(size(st%y,2))             ::  bigP, dE_dpc_sj_ST!, p, pc,
+		complex(cx), dimension( size(st%y,1), size(st%y,2) )            ::  p, pc
+		complex(cx), dimension(size(st%y,2), size(st%y,3))     :: f, bigF, inv_rovm_mul_F_m_fnP
+		complex(cx), dimension(size(st%y,1), size(st%y,2), size(st%y,3))     :: dE_dyc_sj_ST
+		complex(cx), dimension(size(st%y,2),size(st%y,2))         :: inv_rovm, rovm, b, Amat, RHS, d
+		complex(cx), dimension(size(st%y,2),size(st%y,2),size(st%y,2))  :: alphaT
+		complex(cx), allocatable          :: packed_RHS(:), d_packed(:)
+		complex(cx), allocatable  :: mat2D(:,:)
 		integer                                :: info,i,j,k,n,m,s,ii,jj
-		complex(16), dimension(size(st%y,2))             ::  summed_d
+		complex(cx), dimension(size(st%y,2))             ::  summed_d
 
 
 		allocate( mat2D( size(st%y,2)**2,size(st%y,2)**2 ) )
@@ -675,7 +675,7 @@ CONTAINS
 		type(param), intent(in)       :: 	sys
 		type(state), intent(in)       :: 	st
 		integer,intent(in)            ::  s,j     
-		complex(16) 	  				  ::  dE_dpc_sj
+		complex(cx) 	  				  ::  dE_dpc_sj
 
 		dE_dpc_sj = sum( st%p(s,:)*st%ovm(s,j,s,:)*( sys%w_qb(s) + st%bigW(s,j,:) &
 			+ sys%Ad*dcos( sys%wd * st%t ) * st%bigU(s,j,:)  )) &
@@ -683,13 +683,13 @@ CONTAINS
 	END FUNCTION
 
 	SUBROUTINE calc_wigner( p_in, f_in, ovm, xmin, xmax,  wigner, xnum )
-		complex(16), intent(in)                          ::  p_in(:,:)
-		complex(16), intent(in)                          ::  f_in(:,:)
+		complex(cx), intent(in)                          ::  p_in(:,:)
+		complex(cx), intent(in)                          ::  f_in(:,:)
 		integer, intent(in)							    ::  xnum
 		real(8), intent(in)							    ::  xmin, xmax
-		complex(16), intent(in)                          ::  ovm(:,:,:,:)
+		complex(cx), intent(in)                          ::  ovm(:,:,:,:)
 		real(8)							                ::  dx, x, p
-		complex(16)					  					::  tmp, zz
+		complex(cx)					  					::  tmp, zz
 		integer							  				::  i,n,m,xi,xj,ncs,nl
 		real(8), intent(out)				            ::  wigner(xnum,xnum)
 
@@ -915,7 +915,7 @@ CONTAINS
 		type(param), intent(in)								::  sys
 		type(state), intent(in)								::  st
 		integer												::  i, n, k
-		complex(16), dimension(sys%nl,st%ncs,sys%nmodes) 	::  ynk
+		complex(cx), dimension(sys%nl,st%ncs,sys%nmodes) 	::  ynk
 		character(len=300)									::  name_yks
 
 		name_yks="data/YKS_"//trim(adjustl(parameterchar(sys)))//".d"
@@ -995,15 +995,15 @@ CONTAINS
 		type(state)			      ::     ost, new_st
 		real(8)				      ::	 energy_t
 		real(8)  			 	  ::	 error
-		complex(16)				  ::	 tmp1, tmp2, tmp3, tmp4, tmp_sum, sum_diag_g2mat
+		complex(cx)				  ::	 tmp1, tmp2, tmp3, tmp4, tmp_sum, sum_diag_g2mat
 		real(8)				  	  ::	 at, dummy1, dummy2, dummy3
 		integer                   ::	 nmodes, nl, ncs,m,l,n,i,j,k,pp, msfexp, sfexp, s
-		complex(16), dimension(sys%nl,st%ncs)         		::	 p, pdot, pc, pdotc, new_pdot
-		complex(16), dimension(sys%nl,st%ncs,sys%nmodes)     ::	 y, ydot, yc, ydotc, new_ydot
-		complex(16), dimension(st%ncs)         				::	 opdd
-		complex(16), dimension(st%ncs,sys%nmodes)     		::	 oydd
-		complex(16), dimension(st%ncs,st%ncs)         		::	 ovmr
-		complex(16), dimension(sys%nl,st%ncs,sys%nl,st%ncs) 		::	 kap
+		complex(cx), dimension(sys%nl,st%ncs)         		::	 p, pdot, pc, pdotc, new_pdot
+		complex(cx), dimension(sys%nl,st%ncs,sys%nmodes)     ::	 y, ydot, yc, ydotc, new_ydot
+		complex(cx), dimension(st%ncs)         				::	 opdd
+		complex(cx), dimension(st%ncs,sys%nmodes)     		::	 oydd
+		complex(cx), dimension(st%ncs,st%ncs)         		::	 ovmr
+		complex(cx), dimension(sys%nl,st%ncs,sys%nl,st%ncs) 		::	 kap
 		integer									::   info
 
 		tmp1 = 0._8
@@ -1169,10 +1169,10 @@ CONTAINS
 	END FUNCTION
 
 	SUBROUTINE SolveEq_c(A,B,N,res)
-		complex(16), dimension(N,N), intent(in)   ::  A
-		complex(16), dimension(N), intent(in)	 ::  B
+		complex(cx), dimension(N,N), intent(in)   ::  A
+		complex(cx), dimension(N), intent(in)	 ::  B
 		INTEGER, intent(in)                	     ::  N
-		complex(16), intent(out)					 ::  res(size(B,1))
+		complex(cx), intent(out)					 ::  res(size(B,1))
 		INTEGER                	   		    	 ::  INFO,LDA,LDB,NRHS
 		INTEGER, dimension(size(A,1))		  	 ::  IPIV   !-- pivot indices
 
@@ -1193,11 +1193,11 @@ CONTAINS
 
 	SUBROUTINE InvertH(N,A,info)
 		integer, intent(in)						::  N
-		complex(16), intent(in out)              ::  A(N,N)
+		complex(cx), intent(in out)              ::  A(N,N)
 		integer, intent(out)					::  info
 		INTEGER                	   		        ::  LDA,LWORK,i,j
 		INTEGER, dimension(size(A,1))		    ::  IPIV
-		complex(16), allocatable 				::  WORK(:)
+		complex(cx), allocatable 				::  WORK(:)
 
 		LDA = N
 		LWORK = N
@@ -1261,8 +1261,8 @@ END MODULE dynamics
 !		type(param), intent(in)       :: 	sys
 !		type(state), intent(in)       :: 	st
 !		integer,intent(in)              			 			 ::  s,j
-!		complex(16),dimension( sys%nmodes ) 	               ::  dE_dyc_sjk
-!		complex(16), dimension( sys%nl, st%ncs )            ::  p, pc
+!		complex(cx),dimension( sys%nmodes ) 	               ::  dE_dyc_sjk
+!		complex(cx), dimension( sys%nl, st%ncs )            ::  p, pc
 !		integer ::  i,n,ii
 !
 !		p = st%p
@@ -1398,10 +1398,10 @@ END MODULE dynamics
 	!	real(8)      			  			:: 	dt, error_RK5, t_corrected, last_error_calc, t0
 	!	logical								::  dt_corrected
 	!	real(8)					  			:: 	a_mat( 5, 5 ), c_mat( 5 ), b_rk4( 6 ), b_rk5( 6 )
-	!	complex(16), dimension(size(st%p,1),size(st%p,2))   :: 	kp1, kp2, kp3, kp4, kp5, kp6
-	!	complex(16), dimension(size(st%y,1), size(st%y,2), size(st%y,3))::  kf1, kf2, kf3, kf4, kf5, kf6
-	!	complex(16), dimension(size(st%p,1),size(st%p,2))             		::  pdot_RK4, pdot_RK5
-	!	complex(16), dimension(size(st%y,1), size(st%y,2), size(st%y,3))     ::  fdot_RK4, fdot_RK5
+	!	complex(cx), dimension(size(st%p,1),size(st%p,2))   :: 	kp1, kp2, kp3, kp4, kp5, kp6
+	!	complex(cx), dimension(size(st%y,1), size(st%y,2), size(st%y,3))::  kf1, kf2, kf3, kf4, kf5, kf6
+	!	complex(cx), dimension(size(st%p,1),size(st%p,2))             		::  pdot_RK4, pdot_RK5
+	!	complex(cx), dimension(size(st%y,1), size(st%y,2), size(st%y,3))     ::  fdot_RK4, fdot_RK5
 
 	!	t0 = st%t
 	!	midst = st

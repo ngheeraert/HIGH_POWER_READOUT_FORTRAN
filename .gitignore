@@ -1,5 +1,7 @@
 ARCHIVE/
 data/
+bash_history/
 
+*.out
 *.mod
 *.o
