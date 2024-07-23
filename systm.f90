@@ -91,7 +91,7 @@ MODULE SYSTM
 	real(8),   parameter :: twopi=2.0_8*(4.0_8)*atan(1.0_8)
 	real(8),   parameter :: one=1.0_8
 	real(8),   parameter :: zero=0.0_8
-	complex(8),parameter :: ic=(0.0_8,1.0_8)
+	complex(16),parameter :: ic=(0.0_8,1.0_8)
 
 CONTAINS
 
@@ -713,7 +713,7 @@ CONTAINS
 		type( state ), intent(in out)	    	  :: st
 		real(8), intent(out)		   		      :: sum_time
 		real(8)		   			   				  :: t1, t2, tmp
-		complex(8), dimension(sys%nl, st%ncs)	  :: gyeff
+		complex(16), dimension(sys%nl, st%ncs)	  :: gyeff
 		integer ::  m,n,i,j,ii,jj
 
 		call cpu_time(t1)
@@ -792,8 +792,8 @@ CONTAINS
 	END SUBROUTINE
 
 	FUNCTION overlap( f1, f2 )
-		complex(8), intent(in)   ::  f1( : ), f2( : )
-		complex(8)				 ::   overlap
+		complex(16), intent(in)   ::  f1( : ), f2( : )
+		complex(16)				 ::   overlap
 
 		overlap = exp( sum( -0.5_8*conjg(f1)*f1 &
 									- 0.5_8*conjg(f2)*f2 &
