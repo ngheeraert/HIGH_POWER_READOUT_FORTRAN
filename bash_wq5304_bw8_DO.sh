@@ -2,7 +2,7 @@ nl=2
 qb_ini=2
 cav_ini=0
 ncs_ini=1
-ncs_max=2
+ncs_max=1
 dvice=TRSM3
 wc=7.5
 #g_qc=0.25
@@ -28,8 +28,8 @@ lsfe=12
 ncut=0.000001
 
 n_dtadd_change=3
-dtadd=0.01
-dt_add_ini=0.01
+dtadd=0.5
+dt_add_ini=0.2
 
 dt=0.001
 #PD=0.025
@@ -59,7 +59,7 @@ mr_hf=0.0
 merr_array=(0.01)
 #dtadd_array=(2)
 
-errlim=0.0001
+errlim=0.00001
 paramchar=mpol_nl$nl\_n$ncs_ini\_$ncs_max\_ad$Ad\_dtadd$dt_add\_mr$mr\_t$tmax\_errlim$errlim\_abs$offset_abs
 
 #for dtadd in ${dtadd_array[@]}; 
