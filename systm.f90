@@ -554,8 +554,8 @@ CONTAINS
 	END SUBROUTINE  
 
 	SUBROUTINE allocate_state(sys,st,ncs_value) 
-		type(param), intent(in)      	::  sys
-		type(state), intent(out)  		::  st
+		type(param), intent(in)      	::  sys 
+		type(state), intent(out)  		::  st 
 		type(state)							::  tmpst !-- if st has to be reallocated
 		integer, intent(in),optional		::  ncs_value
 		integer									::  ncs, step_numb
@@ -1170,10 +1170,10 @@ CONTAINS
 		elseif (print_to == 2) then
 			!-- write to both file and console
 			write(*,*) message
-			!open(unit=100,file='data/LOG_'//trim(adjustl(parameterchar(sys)))//'.d' ,&
-			!	action="write",position='append',status="old")
-			!write(100,*) message
-			!close(100)
+			open(unit=100,file='data/LOG_'//trim(adjustl(parameterchar(sys)))//'.d' ,&
+				action="write",position='append',status="old")
+			write(100,*) message
+			close(100)
 		end if
 	END SUBROUTINE
 

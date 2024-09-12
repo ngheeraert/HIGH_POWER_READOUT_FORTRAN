@@ -14,8 +14,8 @@ ad=0.0
 #ad=0.4
 #alpha=0.00
 alpha=0.001071759819112394
-#alpha_LF=0.0
-alpha_LF=0.000025
+###alpha_LF=0.0
+###alpha_LF=0.000025
 cutoff_LF=6.5
 nbm=500
 #nbm=1000
@@ -24,10 +24,10 @@ offset_abs=1.5
 offset_ang=1
 p2_threshold=015	
 calc_error=1
-#merr=0.0005
+merr=0.01
 method=RK45
 ar=0.0
-lsfe=14
+lsfe=12
 ncut=0.000001
 
 n_dtadd_change=2
@@ -61,14 +61,16 @@ mr_hf=0.0
 #merr_max=0.0001
 #merr_int=0.0004
 
-merr_array=(0.01)
+#merr_array=(0.01)
+alpha_LF_array=(0.000021 0.000023 0.000025 0.000027 0.000029)
 #dtadd_array=(2)
 
 errlim=0.00001
 paramchar=mpol_nl$nl\_n$ncs_ini\_$ncs_max\_ad$Ad\_dtadd$dt_add\_mr$mr\_t$tmax\_errlim$errlim\_abs$offset_abs
 
 #for dtadd in ${dtadd_array[@]}; 
-for merr in ${merr_array[@]}; 
+#for merr in ${merr_array[@]}; 
+for alpha_LF in ${alpha_LF_array[@]}; 
 do
 
   	echo i=$i, ncs_max=$ncs_max, merr=$merr, dtadd=$dtadd, dt_add_ini=$dt_add_ini
