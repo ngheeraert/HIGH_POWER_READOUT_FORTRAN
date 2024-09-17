@@ -1,5 +1,5 @@
 Metadata-Version: 2.1
-Name: dynamics-analysis
+Name: dynamics_analysis
 Version: 0.1
 Summary: This program loads simulation data and allows further analysis of the results.
 Author: Nicolas Gheeraert
