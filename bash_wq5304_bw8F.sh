@@ -1,20 +1,16 @@
 nl=2
-qb_ini=2
+qb_ini=-2
 cav_ini=0
-ncs_ini=1
-ncs_max=1
+ncs_ini=2
+ncs_max=2
 dvice=TRSM3
 wc=7.5
-#g_qc=0.25
-g_qc=0.0
+g_qc=0.25
 p0=0.000005
-ad=0.0
-#ad=0.05
-alpha=0.0
-#alpha=0.0504047481263257
-alpha_LF=0.001
+ad=0.2
+alpha=0.00813
+alpha_LF=0.0
 cutoff_LF=6.5
-#alpha_LF=0.0
 #LF_cutoff=6
 nbm=250
 tmax=10 #-- rebound at t=120
@@ -31,10 +27,10 @@ n_dtadd_change=3
 dtadd=0.5
 dt_add_ini=0.2
 
-dt=0.001
+dt=0.005
 #PD=0.025
-PD=0.001
-ECD=0.001
+PD=0.01
+ECD=0.005
 median_pts=10
 
 wd=7.5
@@ -47,7 +43,7 @@ bc_hf=12.6
 #bw=4
 #bw=8
 #bw=32
-bath_type='O'
+bath_type='F'
 bw=8
 mr_lf=0.0
 mr_qb=0.0
@@ -76,7 +72,7 @@ do
 	echo "mv ../MPOL_\$tpdir/data/* \$PBS_O_WORKDIR/data/" >> $newjobfile
 	echo "rm -r ../MPOL_\$tpdir" >> $newjobfile
 
-	qsub $newjobfile
+	#qsub $newjobfile
 	rm $newjobfile
 
 done

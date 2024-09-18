@@ -1,7 +1,7 @@
-F90 = ifort
-#F90 = gfortran
-LLAPACK  = -mkl
-#LLAPACK  = -llapack
+#F90 = ifort
+F90 = gfortran
+#LLAPACK  = -mkl
+LLAPACK  = -llapack
 DEFS = -DDP 
 
 OPTFLAGS = -O2 #-fall-intrinsics# -Wl#,-rpath,${MKLROOT}/lib #-fall-intrinsics -O2 -fcheck=all #-Wall -Wtabs
