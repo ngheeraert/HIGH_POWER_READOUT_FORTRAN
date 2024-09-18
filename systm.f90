@@ -512,6 +512,7 @@ CONTAINS
 		sys%ground_state%p = sys%p0
 		sys%excited_state%p = sys%p0
 
+		!-- define a state |g>|0> + |e>|1> with random amplitudes
 		sys%ground_state%p(1,1) = 1.0
 		sys%ground_state%p(1,2) = 1.0
 		sys%ground_state%p(2,1) = 1/(2*one_photon_f)
@@ -523,23 +524,72 @@ CONTAINS
 		CALL update_sums( sys, sys%ground_state, dummy )
 		CALL normalise( sys%ground_state )
 
+		!-- use ground state to define state |g>|1> + |e>|0>
 		sys%excited_state%p(2,:) = sys%ground_state%p(1,:)
 		sys%excited_state%p(1,:) = sys%ground_state%p(2,:)
 		sys%excited_state%y(2,:,:) = sys%ground_state%y(1,:,:)
 		sys%excited_state%y(1,:,:) = sys%ground_state%y(2,:,:)
 		CALL update_sums( sys, sys%excited_state, dummy )
 
+		!-- use the predefined state to define the ground state
 		p1 = lvl_occupation( sys%ground_state, 1 )
 		p2 = lvl_occupation( sys%ground_state, 2 )
-		sys%ground_state%p(1,:) = -0.999774217*sys%ground_state%p(1,:)/sqrt(p1)
-		sys%ground_state%p(2,:) = -0.0212418917*sys%ground_state%p(2,:)/sqrt(p2)
+		sys%ground_state%p(1,:) = 0.9998*sys%ground_state%p(1,:)/sqrt(p1)
+		sys%ground_state%p(2,:) = 0.0195*sys%ground_state%p(2,:)/sqrt(p2)
 		CALL normalise( sys%ground_state )
 
+		!-- use the predefined state to define the excited state
 		p1 = lvl_occupation( sys%excited_state, 1 )
 		p2 = lvl_occupation( sys%excited_state, 2 )
-		sys%excited_state%p(1,:) = -0.12160415*sys%excited_state%p(1,:)/sqrt(p1)
-		sys%excited_state%p(2,:) = -0.9925738*sys%excited_state%p(2,:)/sqrt(p2)
+		sys%excited_state%p(1,:) = 0.1121*sys%excited_state%p(1,:)/sqrt(p1)
+		sys%excited_state%p(2,:) = 0.99369*sys%excited_state%p(2,:)/sqrt(p2)
 		CALL normalise( sys%excited_state )
+
+		!== OLD
+		!================================================
+		!-- defining dressed ground and excited states
+
+		!CALL allocate_state(sys,sys%ground_state,sys%ncs_ini)
+		!CALL allocate_state(sys,sys%excited_state,sys%ncs_ini)
+
+		!offset = sys%offset_abs !* exp( Ic*sys%offset_ang )
+		!one_photon_f = 0.01
+
+		!do n=1, sys%ncs_ini
+		!	sys%ground_state%y(:,n,:) = 0.01*n
+		!	sys%excited_state%y(:,n,:) = 0.01*n
+		!end do
+		!sys%ground_state%p = sys%p0
+		!sys%excited_state%p = sys%p0
+
+		!sys%ground_state%p(1,1) = 1.0
+		!sys%ground_state%p(1,2) = 1.0
+		!sys%ground_state%p(2,1) = 1/(2*one_photon_f)
+		!sys%ground_state%p(2,2) = - 1/(2*one_photon_f)
+		!do mu=1, sys%nmodes
+		!	sys%ground_state%y(2,1,mu) = one_photon_f*( sys%Omat(1,mu) )
+		!	sys%ground_state%y(2,2,mu) = - one_photon_f*( sys%Omat(1,mu) )
+		!end do
+		!CALL update_sums( sys, sys%ground_state, dummy )
+		!CALL normalise( sys%ground_state )
+
+		!sys%excited_state%p(2,:) = sys%ground_state%p(1,:)
+		!sys%excited_state%p(1,:) = sys%ground_state%p(2,:)
+		!sys%excited_state%y(2,:,:) = sys%ground_state%y(1,:,:)
+		!sys%excited_state%y(1,:,:) = sys%ground_state%y(2,:,:)
+		!CALL update_sums( sys, sys%excited_state, dummy )
+
+		!p1 = lvl_occupation( sys%ground_state, 1 )
+		!p2 = lvl_occupation( sys%ground_state, 2 )
+		!sys%ground_state%p(1,:) = -0.999774217*sys%ground_state%p(1,:)/sqrt(p1)
+		!sys%ground_state%p(2,:) = -0.0212418917*sys%ground_state%p(2,:)/sqrt(p2)
+		!CALL normalise( sys%ground_state )
+
+		!p1 = lvl_occupation( sys%excited_state, 1 )
+		!p2 = lvl_occupation( sys%excited_state, 2 )
+		!sys%excited_state%p(1,:) = -0.12160415*sys%excited_state%p(1,:)/sqrt(p1)
+		!sys%excited_state%p(2,:) = -0.9925738*sys%excited_state%p(2,:)/sqrt(p2)
+		!CALL normalise( sys%excited_state )
 
 		!print*, '-- PROBABILITIES'
 		!print*, 'g1',lvl_occupation( sys%ground_state, 1 )
