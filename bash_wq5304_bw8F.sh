@@ -1,5 +1,6 @@
 nl=2
-qb_ini=-2
+qb_ini=2
+#qb_ini=-2
 cav_ini=0
 ncs_ini=2
 ncs_max=2
@@ -13,7 +14,7 @@ alpha_LF=0.0
 cutoff_LF=6.5
 #LF_cutoff=6
 nbm=250
-tmax=10 #-- rebound at t=120
+tmax=25 #-- rebound at t=120
 offset_abs=1.5
 offset_ang=1
 p2_threshold=015	

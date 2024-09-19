@@ -1,0 +1,12 @@
+MANIFEST.in
+README.rst
+setup.py
+dynamics_analysis/__init__.py
+dynamics_analysis/dynamics.py
+dynamics_analysis/functions.py
+dynamics_analysis/state.py
+dynamics_analysis.egg-info/PKG-INFO
+dynamics_analysis.egg-info/SOURCES.txt
+dynamics_analysis.egg-info/dependency_links.txt
+dynamics_analysis.egg-info/not-zip-safe
+dynamics_analysis.egg-info/top_level.txt

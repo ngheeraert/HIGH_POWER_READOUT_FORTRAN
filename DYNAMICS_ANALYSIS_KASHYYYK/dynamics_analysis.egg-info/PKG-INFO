@@ -1,0 +1,14 @@
+Metadata-Version: 2.1
+Name: dynamics-analysis
+Version: 0.1
+Summary: This program loads simulation data and allows further analysis of the results.
+Author: Nicolas Gheeraert
+Author-email: n.gheeraert@physics.iitm.ac.in
+
+DYNAMICS_ANALYSIS
+--------
+
+To import::
+
+    >>> import dynamics_analysis
+
